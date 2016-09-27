@@ -1,7 +1,23 @@
+import math
 import numpy as np
 
+from ..shared import *
 
-def ranksum(c_pos, c_neg):
+
+def ranksum(histograms_positive, histograms_negative):
+    positive_matrix = np.vstack(histograms_positive)
+    negative_matrix = np.vstack(histograms_negative)
+    z = []
+    for i in range(HISTOGRAM_CHARACTERISTIC_BIN_SIZE):
+        light_pos = positive_matrix[:, i]
+        light_neg = negative_matrix[:, i]
+
+        a = ranksum_characteristic(light_pos, light_neg)
+        z.append(a[3])
+    return z
+
+
+def ranksum_characteristic(c_pos, c_neg):
     concatenated_characteristics = np.concatenate((c_pos, c_neg))
     sorted_characteristics = np.sort(concatenated_characteristics)
 
@@ -15,4 +31,9 @@ def ranksum(c_pos, c_neg):
 
     z = (ranksum_t - expected_mean) / expected_variance
 
-    return ranksum_t, expected_mean, expected_variance, z
+    adjusted_t = REFERENCE_SAMPLE_SIZE / positive_count * ranksum_t
+    adjusted_mean = REFERENCE_SAMPLE_SIZE / positive_count * expected_mean
+    adjusted_variance = REFERENCE_SAMPLE_SIZE ** 2 / (positive_count * negative_count) * expected_variance
+    adjusted_z = math.sqrt(REFERENCE_SAMPLE_SIZE ** 2 / (positive_count * negative_count)) * z
+
+    return adjusted_t, adjusted_mean, adjusted_variance, adjusted_z

@@ -1,2 +1,2 @@
-from .histograms import gray_level
+from .histograms import HistogramCharacteristic
 from .ranking import ranksum
