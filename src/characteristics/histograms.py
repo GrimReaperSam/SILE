@@ -15,5 +15,11 @@ class HistogramCharacteristic:
     def chroma_level(self):
         img_lab = rgb2lab(self.image)
         img_lch = lab2lch(img_lab)
+        chroma = img_lch[:, :, 1]
+        return exposure.histogram(chroma, nbins=self.nbins)
+
+    def hue_angle_level(self):
+        img_lab = rgb2lab(self.image)
+        img_lch = lab2lch(img_lab)
         chroma = img_lch[:, :, 2]
         return exposure.histogram(chroma, nbins=self.nbins)
