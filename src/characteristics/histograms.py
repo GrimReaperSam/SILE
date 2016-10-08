@@ -1,4 +1,4 @@
-from skimage import exposure
+from skimage import exposure, img_as_float
 from skimage.color import rgb2gray, rgb2lab, lab2lch
 from ..shared import *
 
@@ -10,6 +10,7 @@ class HistogramCharacteristic:
 
     def gray_level(self):
         grey = rgb2gray(self.image)
+        grey = img_as_float(grey)
         return exposure.histogram(grey, nbins=self.nbins)
 
     def chroma_level(self):
