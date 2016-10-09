@@ -8,7 +8,7 @@ def ranksum(histograms_positive, histograms_negative):
     positive_matrix = np.vstack(histograms_positive)
     negative_matrix = np.vstack(histograms_negative)
     z = []
-    for i in range(HISTOGRAM_CHARACTERISTIC_BIN_SIZE):
+    for i in range(DEFAULT_1D_HISTOGRAM_NBINS):
         light_pos = positive_matrix[:, i]
         light_neg = negative_matrix[:, i]
 
