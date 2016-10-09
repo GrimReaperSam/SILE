@@ -1,7 +1,7 @@
 from skimage import exposure, img_as_float
 from skimage.color import rgb2gray, rgb2lab, lab2lch, gray2rgb
-import numpy as np
 
+from .helpers import *
 from ..shared import *
 
 
@@ -118,5 +118,41 @@ class RGBHistogram:
     def compute(self, image):
         h, w, d = image.shape
         rgb = img_as_float(image.reshape((h*w, d)))
-        rgb_hist = np.histogramdd(rgb, nbins=self.nbins)[0]
+        rgb_hist = np.histogramdd(rgb, bins=self.nbins)[0]
         return rgb_hist / np.sum(rgb_hist)
+
+
+class LightnessLayout:
+    def compute(self, image):
+        if len(image.shape) == 2:
+            image = gray2rgb(image)
+        lab = rgb2lab(image)
+        l_ = img_as_float(lab[:, :, 0])
+        l_layout = sample8x8(l_)
+        l_layout -= np.min(l_layout)
+        return l_layout / np.max(l_layout)
+
+
+class ChromaLayout:
+    def compute(self, image):
+        if len(image.shape) == 2:
+            image = gray2rgb(image)
+        lab = rgb2lab(image)
+        lch = lab2lch(lab)
+        c_ = img_as_float(lch[:, :, 1])
+        c_layout = sample8x8(c_)
+        c_layout -= np.min(c_layout)
+        return c_layout / np.max(c_layout)
+
+
+class HueLayout:
+    def compute(self, image):
+        if len(image.shape) == 2:
+            image = gray2rgb(image)
+        lab = rgb2lab(image)
+        lch = lab2lch(lab)
+        c_ = img_as_float(lch[:, :, 1])
+        mask = c_ <= 1
+        h_ = img_as_float(lch[:, :, 2])
+        h_layout = hue_sample8x8(h_, mask)
+        return h_layout
