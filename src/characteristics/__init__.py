@@ -1,2 +1,2 @@
-from .histograms import GrayLevelHistogram, LabHistogram, HistogramCharacteristic
+from .histograms import *
 from .ranking import ranksum
