@@ -156,3 +156,49 @@ class HueLayout:
         h_ = img_as_float(lch[:, :, 2])
         h_layout = hue_sample8x8(h_, mask)
         return h_layout
+
+
+class LightnessHighLayout:
+    def compute(self, image):
+        if len(image.shape) == 2:
+            image = gray2rgb(image)
+        lab = rgb2lab(image)
+        l_ = img_as_float(lab[:, :, 0])
+        l_blur, ss = compute_lightness_blur(l_, 0.1)
+
+        l_high = np.abs(l_[ss:-ss, ss:-ss] - l_blur[ss:-ss, ss:-ss])
+
+        l_high_layout = sample8x8(l_high)
+        l_high_layout -= np.min(l_high_layout)
+        return l_high_layout / np.max(l_high_layout)
+
+
+class DetailsHistogram:
+    def __init__(self, nbins=DEFAULT_1D_HISTOGRAM_NBINS):
+        self.nbins = nbins
+
+    def compute(self, image):
+        if len(image.shape) == 2:
+            image = gray2rgb(image)
+        lab = rgb2lab(image)
+        l_ = img_as_float(lab[:, :, 0])
+        l_blur, ss = compute_lightness_blur(l_, 0.1)
+
+        l_high = np.abs(l_[ss:-ss, ss:-ss] - l_blur[ss:-ss, ss:-ss])
+        lab_l_crop = l_[ss:-ss, ss:-ss]
+
+        details_hist = np.zeros((16, 3))
+
+        positives = lab_l_crop <= 100 / 3
+        if np.count_nonzero(positives) > lab_l_crop.size / 100:
+            details_hist[:, 0] = exposure.histogram(l_high[positives], nbins=self.nbins)[0]
+
+        positives = np.logical_and(lab_l_crop > 100 / 3, lab_l_crop <= 200 / 3)
+        if np.count_nonzero(positives) > lab_l_crop.size / 100:
+            details_hist[:, 1] = exposure.histogram(l_high[positives], nbins=self.nbins)[0]
+
+        positives = lab_l_crop > 200 / 3
+        if np.count_nonzero(positives) > lab_l_crop.size / 100:
+            details_hist[:, 2] = exposure.histogram(l_high[positives], nbins=self.nbins)[0]
+
+        return details_hist

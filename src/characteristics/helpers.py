@@ -1,4 +1,5 @@
 import numpy as np
+from skimage.filters import gaussian
 
 
 def sample8x8(image):
@@ -38,3 +39,10 @@ def hue_sample8x8(image, mask):
                 output[i, j] = alpha
 
     return output
+
+
+def compute_lightness_blur(image, ss):
+    h, w = image.shape
+    ss = ss / 100 * np.sqrt(h**2 + w**2)
+    ss = np.round(3 * ss)
+    return gaussian(image, ss), ss
