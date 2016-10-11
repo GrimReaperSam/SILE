@@ -4,16 +4,18 @@ import numpy as np
 from ..shared import *
 
 
-def ranksum(histograms_positive, histograms_negative):
-    positive_matrix = np.vstack(histograms_positive)
-    negative_matrix = np.vstack(histograms_negative)
-    z = []
-    for i in range(DEFAULT_1D_HISTOGRAM_NBINS):
-        light_pos = positive_matrix[:, i]
-        light_neg = negative_matrix[:, i]
+def ranksum(positives, negatives):
+    characteristic_shape = np.array(positives[0]).shape
+
+    positive_matrix = np.stack(positives, axis=-1)
+    negative_matrix = np.stack(negatives, axis=-1)
+    z = np.zeros(characteristic_shape)
+    for indices in np.ndindex(characteristic_shape):
+        light_pos = positive_matrix[indices]
+        light_neg = negative_matrix[indices]
 
         a = ranksum_characteristic(light_pos, light_neg)
-        z.append(a[3])
+        z[indices] = a[3]
     return z
 
 

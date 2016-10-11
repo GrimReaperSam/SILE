@@ -7,8 +7,8 @@ def sample8x8(image):
     h, w = image.shape
     output = np.zeros((n, n))
 
-    rows = np.round(np.linspace(1, h + 1, n + 1))
-    columns = np.round(np.linspace(1, w + 1, n + 1))
+    rows = np.linspace(1, h + 1, n + 1, dtype=np.int16)
+    columns = np.linspace(1, w + 1, n + 1, dtype=np.int16)
 
     for i in range(n):
         for j in range(n):

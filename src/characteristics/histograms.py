@@ -21,8 +21,7 @@ class LABHistogram:
         self.nbins = nbins
 
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         h, w, d = lab.shape
         lab_ = img_as_float(lab.reshape((h*w, d)))
@@ -35,8 +34,7 @@ class ABHistogram:
         self.nbins = nbins
 
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         h, w, d = lab.shape
         ab_ = lab[:, :, 1:3].reshape((h * w, d - 1))
@@ -49,8 +47,7 @@ class LCHHistogram:
         self.nbins = nbins
 
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         lch = img_as_float(lab2lch(lab))
         lch_hist = np.histogramdd(lch, bins=self.nbins)[0]
@@ -62,8 +59,7 @@ class CHHistogram:
         self.nbins = nbins
 
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         lch = img_as_float(lab2lch(lab))
         ch_ = lch[:, :, 1:3]
@@ -76,8 +72,7 @@ class LightnessHistogram:
         self.nbins = nbins
 
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_hist = exposure.histogram(l_, nbins=self.nbins)[0]
@@ -89,8 +84,7 @@ class ChromaHistogram:
         self.nbins = nbins
 
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         lch = lab2lch(lab)
         c_ = img_as_float(lch[:, :, 1])
@@ -103,8 +97,7 @@ class HueHistogram:
         self.nbins = nbins
 
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         lch = lab2lch(lab)
         h_ = img_as_float(lch[:, :, 2])
@@ -117,6 +110,7 @@ class RGBHistogram:
         self.nbins = 8
 
     def compute(self, image):
+        image = gray2rgb(image)
         h, w, d = image.shape
         rgb = img_as_float(image.reshape((h*w, d)))
         rgb_hist = np.histogramdd(rgb, bins=self.nbins)[0]
@@ -125,8 +119,7 @@ class RGBHistogram:
 
 class LightnessLayout:
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_layout = sample8x8(l_)
@@ -136,8 +129,7 @@ class LightnessLayout:
 
 class ChromaLayout:
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         lch = lab2lch(lab)
         c_ = img_as_float(lch[:, :, 1])
@@ -148,8 +140,7 @@ class ChromaLayout:
 
 class HueLayout:
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         lch = lab2lch(lab)
         c_ = img_as_float(lch[:, :, 1])
@@ -164,8 +155,7 @@ class LightnessHighLayout:
         self.blur_factor = blur_factor
 
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_blur, ss = compute_lightness_blur(l_, self.blur_factor)
@@ -182,8 +172,7 @@ class DetailsHistogram:
         self.nbins = nbins
 
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_blur, ss = compute_lightness_blur(l_, 0.1)
@@ -210,8 +199,7 @@ class DetailsHistogram:
 
 class DetailsLayout:
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_blur, ss = compute_lightness_blur(l_, 0.1)
@@ -248,8 +236,7 @@ class GaborHistogram:
         self.nbins = nbins
 
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         l_ = img_as_float(lab[:, :, 0])
 
@@ -267,8 +254,7 @@ class GaborHistogram:
 
 class GaborLayout:
     def compute(self, image):
-        if len(image.shape) == 2:
-            image = gray2rgb(image)
+        image = gray2rgb(image)
         lab = rgb2lab(image)
         l_ = img_as_float(lab[:, :, 0])
 
@@ -283,20 +269,3 @@ class GaborLayout:
                 layouts[f_i, t_i, :, :] = layout / np.max(layout)
 
         return layouts
-
-
-# class FrequencyHistogram:
-#     def compute(self, image):
-#         if len(image.shape) == 2:
-#             image = gray2rgb(image)
-#         lab = rgb2lab(image)
-#         fft = np.fft.fftn(lab)
-#         return fft
-#
-#
-# class LinearBinaryPatterns:
-#     def compute(self, image):
-#         if len(image.shape) == 2:
-#             image = gray2rgb(image)
-#         lab = rgb2lab(image)
-#         l_ = img_as_float(lab[:, :, 0])
