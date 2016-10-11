@@ -1,4 +1,5 @@
 from skimage import exposure, img_as_float
+from skimage.filters import gabor
 from skimage.color import rgb2gray, rgb2lab, lab2lch, gray2rgb
 
 from .helpers import *
@@ -159,12 +160,15 @@ class HueLayout:
 
 
 class LightnessHighLayout:
+    def __init__(self, blur_factor=0.1):
+        self.blur_factor = blur_factor
+
     def compute(self, image):
         if len(image.shape) == 2:
             image = gray2rgb(image)
         lab = rgb2lab(image)
         l_ = img_as_float(lab[:, :, 0])
-        l_blur, ss = compute_lightness_blur(l_, 0.1)
+        l_blur, ss = compute_lightness_blur(l_, self.blur_factor)
 
         l_high = np.abs(l_[ss:-ss, ss:-ss] - l_blur[ss:-ss, ss:-ss])
 
@@ -202,3 +206,97 @@ class DetailsHistogram:
             details_hist[:, 2] = exposure.histogram(l_high[positives], nbins=self.nbins)[0]
 
         return details_hist
+
+
+class DetailsLayout:
+    def compute(self, image):
+        if len(image.shape) == 2:
+            image = gray2rgb(image)
+        lab = rgb2lab(image)
+        l_ = img_as_float(lab[:, :, 0])
+        l_blur, ss = compute_lightness_blur(l_, 0.1)
+
+        l_high = np.abs(l_[ss:-ss, ss:-ss] - l_blur[ss:-ss, ss:-ss])
+        lab_l_crop = l_[ss:-ss, ss:-ss]
+
+        details = np.zeros(l_high.shape)
+        details_layout = np.zeros((8, 8, 3))
+
+        positives = lab_l_crop <= 100 / 3
+        details[positives] = l_high[positives]
+        details_layout[:, :, 0] = sample8x8(details)
+        details_layout[:, :, 0] -= np.min(details_layout[:, :, 0])
+        details_layout[:, :, 0] /= np.max(details_layout[:, :, 0])
+
+        positives = np.logical_and(lab_l_crop > 100 / 3, lab_l_crop <= 200 / 3)
+        details[positives] = l_high[positives]
+        details_layout[:, :, 1] = sample8x8(details)
+        details_layout[:, :, 1] -= np.min(details_layout[:, :, 1])
+        details_layout[:, :, 1] /= np.max(details_layout[:, :, 1])
+
+        positives = lab_l_crop > 200 / 3
+        details[positives] = l_high[positives]
+        details_layout[:, :, 2] = sample8x8(details)
+        details_layout[:, :, 2] -= np.min(details_layout[:, :, 2])
+        details_layout[:, :, 2] /= np.max(details_layout[:, :, 2])
+
+        return details_layout
+
+
+class GaborHistogram:
+    def __init__(self, nbins=DEFAULT_1D_HISTOGRAM_NBINS):
+        self.nbins = nbins
+
+    def compute(self, image):
+        if len(image.shape) == 2:
+            image = gray2rgb(image)
+        lab = rgb2lab(image)
+        l_ = img_as_float(lab[:, :, 0])
+
+        thetas = np.pi * np.array([0, 1/4, 1/2, 3/4])
+        frequencies = np.array([1/10, 1/20])
+        histograms = np.zeros((frequencies.size, thetas.size, self.nbins))
+
+        for f_i, f in enumerate(frequencies):
+            for t_i, t in enumerate(thetas):
+                gabor_real = gabor(l_, f, theta=t)[0]
+                histograms[f_i, t_i, :] = exposure.histogram(gabor_real, nbins=self.nbins)[0]
+
+        return histograms
+
+
+class GaborLayout:
+    def compute(self, image):
+        if len(image.shape) == 2:
+            image = gray2rgb(image)
+        lab = rgb2lab(image)
+        l_ = img_as_float(lab[:, :, 0])
+
+        thetas = np.pi * np.array([0, 1/4, 1/2, 3/4])
+        frequencies = np.array([1/10, 1/20])
+        layouts = np.zeros((frequencies.size, thetas.size, 8, 8))
+
+        for f_i, f in enumerate(frequencies):
+            for t_i, t in enumerate(thetas):
+                layout = sample8x8(gabor(l_, f, theta=t)[0])
+                layout -= np.min(layout)
+                layouts[f_i, t_i, :, :] = layout / np.max(layout)
+
+        return layouts
+
+
+# class FrequencyHistogram:
+#     def compute(self, image):
+#         if len(image.shape) == 2:
+#             image = gray2rgb(image)
+#         lab = rgb2lab(image)
+#         fft = np.fft.fftn(lab)
+#         return fft
+#
+#
+# class LinearBinaryPatterns:
+#     def compute(self, image):
+#         if len(image.shape) == 2:
+#             image = gray2rgb(image)
+#         lab = rgb2lab(image)
+#         l_ = img_as_float(lab[:, :, 0])

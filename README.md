@@ -2,8 +2,6 @@
 
     * High Frequency Histogram
     * Frequency Histogram
-    * Gabor Filter Histogram
-    * Gabor Filter Layout
     * Linear Binary Pattern Histogram
 
 ### Features currently covered ###
@@ -17,3 +15,5 @@
     * Ligness Layout
     * Chrome Layout
     * Hue Angle Layout
+    * Gabor Filter Histogram
+    * Gabor Filter Layout
