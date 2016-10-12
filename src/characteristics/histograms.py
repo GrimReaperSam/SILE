@@ -211,22 +211,25 @@ class DetailsLayout:
         details_layout = np.zeros((8, 8, 3))
 
         positives = lab_l_crop <= 100 / 3
-        details[positives] = l_high[positives]
-        details_layout[:, :, 0] = sample8x8(details)
-        details_layout[:, :, 0] -= np.min(details_layout[:, :, 0])
-        details_layout[:, :, 0] /= np.max(details_layout[:, :, 0])
+        if np.count_nonzero(positives) > lab_l_crop.size / 100:
+            details[positives] = l_high[positives]
+            details_layout[:, :, 0] = sample8x8(details)
+            details_layout[:, :, 0] -= np.min(details_layout[:, :, 0])
+            details_layout[:, :, 0] /= np.max(details_layout[:, :, 0])
 
         positives = np.logical_and(lab_l_crop > 100 / 3, lab_l_crop <= 200 / 3)
-        details[positives] = l_high[positives]
-        details_layout[:, :, 1] = sample8x8(details)
-        details_layout[:, :, 1] -= np.min(details_layout[:, :, 1])
-        details_layout[:, :, 1] /= np.max(details_layout[:, :, 1])
+        if np.count_nonzero(positives) > lab_l_crop.size / 100:
+            details[positives] = l_high[positives]
+            details_layout[:, :, 1] = sample8x8(details)
+            details_layout[:, :, 1] -= np.min(details_layout[:, :, 1])
+            details_layout[:, :, 1] /= np.max(details_layout[:, :, 1])
 
         positives = lab_l_crop > 200 / 3
-        details[positives] = l_high[positives]
-        details_layout[:, :, 2] = sample8x8(details)
-        details_layout[:, :, 2] -= np.min(details_layout[:, :, 2])
-        details_layout[:, :, 2] /= np.max(details_layout[:, :, 2])
+        if np.count_nonzero(positives) > lab_l_crop.size / 100:
+            details[positives] = l_high[positives]
+            details_layout[:, :, 2] = sample8x8(details)
+            details_layout[:, :, 2] -= np.min(details_layout[:, :, 2])
+            details_layout[:, :, 2] /= np.max(details_layout[:, :, 2])
 
         return details_layout
 
