@@ -1,6 +1,7 @@
 from skimage import exposure, img_as_float
-from skimage.filters import gabor
 from skimage.color import rgb2gray, rgb2lab, lab2lch, gray2rgb
+
+from scipy import ndimage as ndi
 
 from .helpers import *
 from ..shared import *
@@ -244,13 +245,14 @@ class GaborHistogram:
         l_ = img_as_float(lab[:, :, 0])
 
         thetas = np.pi * np.array([0, 1/4, 1/2, 3/4])
-        frequencies = np.array([1/10, 1/20])
-        histograms = np.zeros((frequencies.size, thetas.size, self.nbins))
+        sizes = np.array([10, 20])
+        histograms = np.zeros((sizes.size, thetas.size, self.nbins))
 
-        for f_i, f in enumerate(frequencies):
+        for s_i, s in enumerate(sizes):
             for t_i, t in enumerate(thetas):
-                gabor_real = gabor(l_, f, theta=t)[0]
-                histograms[f_i, t_i, :] = exposure.histogram(gabor_real, nbins=self.nbins)[0]
+                kernel = compute_gabor_kernel(s, 1/s, t)
+                gabor_real = ndi.convolve(l_, kernel)
+                histograms[s_i, t_i, :] = exposure.histogram(gabor_real, nbins=self.nbins)[0]
 
         return histograms
 
@@ -262,13 +264,15 @@ class GaborLayout:
         l_ = img_as_float(lab[:, :, 0])
 
         thetas = np.pi * np.array([0, 1/4, 1/2, 3/4])
-        frequencies = np.array([1/10, 1/20])
-        layouts = np.zeros((frequencies.size, thetas.size, 8, 8))
+        sizes = np.array([10, 20])
+        layouts = np.zeros((sizes.size, thetas.size, 8, 8))
 
-        for f_i, f in enumerate(frequencies):
+        for s_i, s in enumerate(sizes):
             for t_i, t in enumerate(thetas):
-                layout = sample8x8(gabor(l_, f, theta=t)[0])
+                kernel = compute_gabor_kernel(s, 1 / s, t)
+                gabor_real = ndi.convolve(l_, kernel)
+                layout = sample8x8(gabor_real)
                 layout -= np.min(layout)
-                layouts[f_i, t_i, :, :] = layout / np.max(layout)
+                layouts[s_i, t_i, :, :] = layout / np.max(layout)
 
         return layouts

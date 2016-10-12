@@ -46,3 +46,11 @@ def compute_lightness_blur(image, ss):
     ss = ss / 100 * np.sqrt(h**2 + w**2)
     ss = np.rint(3 * ss).astype(np.int8)
     return gaussian(image, ss), ss
+
+
+def compute_gabor_kernel(size, frequency, theta):
+    gy, gx = np.mgrid[-size:size+1, -size:size+1]
+    rot = np.exp(2j*np.pi*frequency*(gx*np.cos(-theta) + gy*np.sin(-theta)))
+    g = np.multiply(np.exp(-2*(gx**2 + gy**2)/size**2), rot)
+    g = np.real(g)
+    return g / np.sum(g)
