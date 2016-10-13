@@ -49,8 +49,9 @@ class LCHHistogram:
 
     def compute(self, image):
         image = gray2rgb(image)
+        h, w, d = image.shape
         lab = rgb2lab(image)
-        lch = img_as_float(lab2lch(lab))
+        lch = img_as_float(lab2lch(lab)).reshape(h*w, d)
         lch_hist = np.histogramdd(lch, bins=self.nbins)[0]
         return lch_hist / np.sum(lch_hist)
 
@@ -63,7 +64,8 @@ class CHHistogram:
         image = gray2rgb(image)
         lab = rgb2lab(image)
         lch = img_as_float(lab2lch(lab))
-        ch_ = lch[:, :, 1:3]
+        h, w, d = lch.shape
+        ch_ = lch[:, :, 1:3].reshape(h*w, 2)
         ch_hist = np.histogramdd(ch_, bins=self.nbins)[0]
         return ch_hist / np.sum(ch_hist)
 

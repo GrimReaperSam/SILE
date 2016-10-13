@@ -4,6 +4,10 @@ import numpy as np
 from ..shared import *
 
 
+def delta_z(z_matrix):
+    return z_matrix.max() - z_matrix.min()
+
+
 def ranksum(positives, negatives):
     characteristic_shape = np.array(positives[0]).shape
 

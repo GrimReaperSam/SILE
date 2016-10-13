@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 
 from src.characteristics.histograms import *
-from src.characteristics import ranksum
+from src.characteristics import ranksum, delta_z
 
 gray_hist = GrayLevelHistogram()
 
@@ -17,5 +17,12 @@ for i in os.listdir('DB/white'):
     light = imread('DB/white/' + i)
     light_hists.append(gray_hist.compute(light))
 
-plt.plot(ranksum(dark_hists, light_hists))
+rsum = ranksum(dark_hists, light_hists)
+print(rsum.shape)
+print(delta_z(rsum))
+
+if len(rsum.shape) == 1:
+    plt.plot(ranksum(dark_hists, light_hists))
+elif len(rsum.shape) == 2:
+    plt.imshow(rsum, cmap='gray')
 plt.show()
