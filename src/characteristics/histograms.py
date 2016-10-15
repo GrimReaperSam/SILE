@@ -278,3 +278,35 @@ class GaborLayout:
                 layouts[s_i, t_i, :, :] = layout / np.max(layout)
 
         return layouts
+
+
+class LightnessFourrier:
+    def compute(self, image):
+        image = gray2rgb(image)
+        lab = rgb2lab(image)
+        l_ = img_as_float(lab[:, :, 0])
+        fourier = np.absolute(np.fft.fft2(l_))
+        resized = np.resize(fourier, (21, 21))
+        return resized / np.max(resized)
+
+
+class ChromaFourrier:
+    def compute(self, image):
+        image = gray2rgb(image)
+        lab = rgb2lab(image)
+        lch = lab2lch(lab)
+        l_ = img_as_float(lch[:, :, 1])
+        fourier = np.absolute(np.fft.fft2(l_))
+        resized = np.resize(fourier, (21, 21))
+        return resized / np.max(resized)
+
+
+class HueAngleFourrier:
+    def compute(self, image):
+        image = gray2rgb(image)
+        lab = rgb2lab(image)
+        lch = lab2lch(lab)
+        l_ = img_as_float(lch[:, :, 2])
+        fourier = np.absolute(np.fft.fft2(l_))
+        resized = np.resize(fourier, (21, 21))
+        return resized / np.max(resized)
