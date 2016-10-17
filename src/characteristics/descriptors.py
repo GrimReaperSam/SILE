@@ -280,7 +280,7 @@ class GaborLayout:
         return layouts
 
 
-class LightnessFourrier:
+class LightnessFourier:
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
@@ -290,7 +290,7 @@ class LightnessFourrier:
         return resized / np.max(resized)
 
 
-class ChromaFourrier:
+class ChromaFourier:
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
@@ -301,7 +301,7 @@ class ChromaFourrier:
         return resized / np.max(resized)
 
 
-class HueAngleFourrier:
+class HueFourier:
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
