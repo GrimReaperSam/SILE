@@ -1,7 +1,8 @@
 import abc
 
 from ..characteristics.descriptors_calculator import DescriptorsCalculator
-from ..characteristics.ranking import ranksum
+from ..characteristics.ranking import ranksum, delta_z
+
 
 class ZCollector:
     def __init__(self, image_provider, z_provider):
@@ -18,8 +19,12 @@ class ZCollector:
             for key in self.descriptor_calculator.descriptors:
                 positive_values = self.descriptor_calculator.describe_set(positives, key)
                 negative_values = self.descriptor_calculator.describe_set(negatives, key)
-                z_values[key] = ranksum(positive_values, negative_values)
-
+                rank = ranksum(positive_values, negative_values)
+                delta = delta_z(rank)
+                z_values[key] = {
+                    'values': ranksum(positive_values, negative_values),
+                    'delta_z': delta
+                }
         return z_values
 
 
