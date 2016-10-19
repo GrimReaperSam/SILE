@@ -1,15 +1,24 @@
 import abc
 
+from ..characteristics.descriptors_calculator import DescriptorsCalculator
+from ..characteristics.ranking import ranksum
+
 class ZCollector:
     def __init__(self, image_provider, z_provider):
         self.image_provider = image_provider
         self.z_provider = z_provider
+        self.descriptor_calculator = DescriptorsCalculator()
 
     def collect(self, keyword):
         if self.z_provider.exists(keyword):
             z_values = self.z_provider.provide(keyword)
         else:
-            z_values = self.image_provider.provide(keyword)
+            positives, negatives = self.image_provider.provide(keyword)
+            z_values = {}
+            for key in self.descriptor_calculator.descriptors:
+                positive_values = self.descriptor_calculator.describe_set(positives, key)
+                negative_values = self.descriptor_calculator.describe_set(negatives, key)
+                z_values[key] = ranksum(positive_values, negative_values)
 
         return z_values
 
