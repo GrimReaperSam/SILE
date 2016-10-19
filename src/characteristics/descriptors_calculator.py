@@ -3,7 +3,7 @@ from .descriptors import *
 
 class DescriptorsCalculator:
     def __init__(self):
-        self.characteristics = {
+        self.descriptors = {
             'gray_hist': GrayLevelHistogram(),
             'chroma_hist': ChromaHistogram(),
             'hue_angle_hist': HueHistogram(),
@@ -20,8 +20,15 @@ class DescriptorsCalculator:
             #'lbp_hist': LinearBinaryPatternHistogram()
         }
 
-    def describe(self, image):
+    def describe_image(self, image):
         descriptors = {}
-        for (k, v) in self.characteristics.items():
+        for (k, v) in self.descriptors.items():
             descriptors[k] = v.compute(image)
         return descriptors
+
+    def describe_set(self, images, descriptor_name):
+        descriptor = self.descriptors[descriptor_name]
+        characteristics = np.zeros((len(images), *descriptor.shape))
+        for image_index, image in enumerate(images):
+            characteristics[image_index] = descriptor.compute(image)
+        return characteristics

@@ -1,3 +1,5 @@
+import abc
+
 from skimage import exposure, img_as_float
 from skimage.color import rgb2gray, rgb2lab, lab2lch, gray2rgb
 
@@ -7,9 +9,29 @@ from .helpers import *
 from ..shared import *
 
 
-class GrayLevelHistogram:
+class Descriptor(metaclass=abc.ABCMeta):
+    @property
+    @abc.abstractmethod
+    def shape(self):
+        """
+        :return: The shape of the descriptor
+        """
+
+    @abc.abstractmethod
+    def compute(self, image):
+        """
+        :param image: GrayLevel or RGB image matrix
+        :return: The descriptor for this image
+        """
+
+
+class GrayLevelHistogram(Descriptor):
     def __init__(self, nbins=DEFAULT_1D_HISTOGRAM_NBINS):
         self.nbins = nbins
+
+    @property
+    def shape(self):
+        return self.nbins,
 
     def compute(self, image):
         grey = img_as_float(rgb2gray(image))
@@ -17,9 +39,13 @@ class GrayLevelHistogram:
         return hist / np.sum(hist)
 
 
-class LABHistogram:
+class LABHistogram(Descriptor):
     def __init__(self, nbins=DEFAULT_3D_HISTOGRAM_NBINS):
         self.nbins = nbins
+
+    @property
+    def shape(self):
+        return self.nbins, self.nbins, self.nbins
 
     def compute(self, image):
         image = gray2rgb(image)
@@ -30,9 +56,13 @@ class LABHistogram:
         return lab_hist / np.sum(lab_hist)
 
 
-class ABHistogram:
+class ABHistogram(Descriptor):
     def __init__(self, nbins=DEFAULT_2D_HISTOGRAM_NBINS):
         self.nbins = nbins
+
+    @property
+    def shape(self):
+        return self.nbins, self.nbins
 
     def compute(self, image):
         image = gray2rgb(image)
@@ -43,9 +73,13 @@ class ABHistogram:
         return ab_hist / np.sum(ab_hist)
 
 
-class LCHHistogram:
+class LCHHistogram(Descriptor):
     def __init__(self, nbins=DEFAULT_3D_HISTOGRAM_NBINS):
         self.nbins = nbins
+
+    @property
+    def shape(self):
+        return self.nbins, self.nbins, self.nbins
 
     def compute(self, image):
         image = gray2rgb(image)
@@ -56,9 +90,13 @@ class LCHHistogram:
         return lch_hist / np.sum(lch_hist)
 
 
-class CHHistogram:
+class CHHistogram(Descriptor):
     def __init__(self, nbins=DEFAULT_2D_HISTOGRAM_NBINS):
         self.nbins = nbins
+
+    @property
+    def shape(self):
+        return self.nbins, self.nbins
 
     def compute(self, image):
         image = gray2rgb(image)
@@ -70,9 +108,13 @@ class CHHistogram:
         return ch_hist / np.sum(ch_hist)
 
 
-class LightnessHistogram:
+class LightnessHistogram(Descriptor):
     def __init__(self, nbins=DEFAULT_1D_HISTOGRAM_NBINS):
         self.nbins = nbins
+
+    @property
+    def shape(self):
+        return self.nbins,
 
     def compute(self, image):
         image = gray2rgb(image)
@@ -82,9 +124,13 @@ class LightnessHistogram:
         return l_hist / np.sum(l_hist)
 
 
-class ChromaHistogram:
+class ChromaHistogram(Descriptor):
     def __init__(self, nbins=DEFAULT_1D_HISTOGRAM_NBINS):
         self.nbins = nbins
+
+    @property
+    def shape(self):
+        return self.nbins,
 
     def compute(self, image):
         image = gray2rgb(image)
@@ -95,9 +141,13 @@ class ChromaHistogram:
         return c_hist / np.sum(c_hist)
 
 
-class HueHistogram:
+class HueHistogram(Descriptor):
     def __init__(self, nbins=DEFAULT_1D_HISTOGRAM_NBINS):
         self.nbins = nbins
+
+    @property
+    def shape(self):
+        return self.nbins,
 
     def compute(self, image):
         image = gray2rgb(image)
@@ -108,9 +158,13 @@ class HueHistogram:
         return h_hist / np.sum(h_hist)
 
 
-class RGBHistogram:
+class RGBHistogram(Descriptor):
     def __init__(self):
         self.nbins = 8
+
+    @property
+    def shape(self):
+        return self.nbins, self.nbins, self.nbins
 
     def compute(self, image):
         image = gray2rgb(image)
@@ -120,7 +174,11 @@ class RGBHistogram:
         return rgb_hist / np.sum(rgb_hist)
 
 
-class LightnessLayout:
+class LightnessLayout(Descriptor):
+    @property
+    def shape(self):
+        return 8, 8
+
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
@@ -130,7 +188,11 @@ class LightnessLayout:
         return l_layout / np.max(l_layout)
 
 
-class ChromaLayout:
+class ChromaLayout(Descriptor):
+    @property
+    def shape(self):
+        return 8, 8
+
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
@@ -141,7 +203,11 @@ class ChromaLayout:
         return c_layout / np.max(c_layout)
 
 
-class HueLayout:
+class HueLayout(Descriptor):
+    @property
+    def shape(self):
+        return 8, 8
+
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
@@ -153,9 +219,13 @@ class HueLayout:
         return h_layout
 
 
-class LightnessHighLayout:
+class LightnessHighLayout(Descriptor):
     def __init__(self, blur_factor=0.1):
         self.blur_factor = blur_factor
+
+    @property
+    def shape(self):
+        return 8, 8
 
     def compute(self, image):
         image = gray2rgb(image)
@@ -170,9 +240,13 @@ class LightnessHighLayout:
         return l_high_layout / np.max(l_high_layout)
 
 
-class DetailsHistogram:
+class DetailsHistogram(Descriptor):
     def __init__(self, nbins=DEFAULT_1D_HISTOGRAM_NBINS):
         self.nbins = nbins
+
+    @property
+    def shape(self):
+        return self.nbins, 3
 
     def compute(self, image):
         image = gray2rgb(image)
@@ -200,7 +274,11 @@ class DetailsHistogram:
         return details_hist
 
 
-class DetailsLayout:
+class DetailsLayout(Descriptor):
+    @property
+    def shape(self):
+        return 8, 8, 3
+
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
@@ -237,21 +315,25 @@ class DetailsLayout:
         return details_layout
 
 
-class GaborHistogram:
+class GaborHistogram(Descriptor):
     def __init__(self, nbins=DEFAULT_1D_HISTOGRAM_NBINS):
         self.nbins = nbins
+        self.thetas = np.pi * np.array([0, 1/4, 1/2, 3/4])
+        self.sizes = np.array([10, 20])
+
+    @property
+    def shape(self):
+        return self.sizes.size, self.thetas.size, self.nbins
 
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
         l_ = img_as_float(lab[:, :, 0])
 
-        thetas = np.pi * np.array([0, 1/4, 1/2, 3/4])
-        sizes = np.array([10, 20])
-        histograms = np.zeros((sizes.size, thetas.size, self.nbins))
+        histograms = np.zeros((self.sizes.size, self.thetas.size, self.nbins))
 
-        for s_i, s in enumerate(sizes):
-            for t_i, t in enumerate(thetas):
+        for s_i, s in enumerate(self.sizes):
+            for t_i, t in enumerate(self.thetas):
                 kernel = compute_gabor_kernel(s, 1/s, t)
                 gabor_real = ndi.convolve(l_, kernel)
                 histograms[s_i, t_i, :] = exposure.histogram(gabor_real, nbins=self.nbins)[0]
@@ -259,18 +341,24 @@ class GaborHistogram:
         return histograms
 
 
-class GaborLayout:
+class GaborLayout(Descriptor):
+    def __init__(self):
+        self.thetas = np.pi * np.array([0, 1 / 4, 1 / 2, 3 / 4])
+        self.sizes = np.array([10, 20])
+
+    @property
+    def shape(self):
+        return self.sizes.size, self.thetas.size, 8, 8
+
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
         l_ = img_as_float(lab[:, :, 0])
 
-        thetas = np.pi * np.array([0, 1/4, 1/2, 3/4])
-        sizes = np.array([10, 20])
-        layouts = np.zeros((sizes.size, thetas.size, 8, 8))
+        layouts = np.zeros((self.sizes.size, self.thetas.size, 8, 8))
 
-        for s_i, s in enumerate(sizes):
-            for t_i, t in enumerate(thetas):
+        for s_i, s in enumerate(self.sizes):
+            for t_i, t in enumerate(self.thetas):
                 kernel = compute_gabor_kernel(s, 1 / s, t)
                 gabor_real = ndi.convolve(l_, kernel)
                 layout = sample8x8(gabor_real)
@@ -280,7 +368,11 @@ class GaborLayout:
         return layouts
 
 
-class LightnessFourier:
+class LightnessFourier(Descriptor):
+    @property
+    def shape(self):
+        return 21, 21
+
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
@@ -290,7 +382,11 @@ class LightnessFourier:
         return resized / np.max(resized)
 
 
-class ChromaFourier:
+class ChromaFourier(Descriptor):
+    @property
+    def shape(self):
+        return 21, 21
+
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
@@ -301,7 +397,11 @@ class ChromaFourier:
         return resized / np.max(resized)
 
 
-class HueFourier:
+class HueFourier(Descriptor):
+    @property
+    def shape(self):
+        return 21, 21
+
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
