@@ -26,6 +26,7 @@ class DescriptorsCalculator:
             descriptors[k] = v.compute(image)
         return descriptors
 
+    # TODO work with a fucking generator bitch
     def describe_set(self, images, descriptor_name):
         descriptor = self.descriptors[descriptor_name]
         characteristics = np.zeros((len(images), *descriptor.shape))
