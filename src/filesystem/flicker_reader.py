@@ -17,6 +17,12 @@ class FlickerDB:
     def path_from_id(self, image_id):
         return Path(self.__get_prefix(image_id)) / ("%s.jpg" % image_id)
 
+    def rgb_from_id(self, image_id):
+        return Path(RGB_IMAGES) / self.path_from_id(image_id)
+
+    def lab_from_id(self, image_id):
+        return Path(LAB_IMAGES) / self.path_from_id(image_id)
+
     def __read_images(self):
         flicker_db_pickle = Path(os.getcwd()) / FLICKER_PANDAS_STRUCTURE
         if flicker_db_pickle.exists():
