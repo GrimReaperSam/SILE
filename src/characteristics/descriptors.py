@@ -315,26 +315,35 @@ class DetailsLayout(Descriptor):
         return details_layout
 
 
+class GaborBanks:
+    def __init__(self):
+        self.thetas = np.pi * np.array([0, 1 / 4, 1 / 2, 3 / 4])
+        self.sizes = np.array([10, 20])
+        self.kernels = [[None] * self.thetas.size] * self.sizes.size
+        for s_i, s in enumerate(self.sizes):
+            for t_i, t in enumerate(self.thetas):
+                self.kernels[s_i][t_i] = compute_gabor_kernel(s, 1/s, t)
+gb = GaborBanks()
+
+
 class GaborHistogram(Descriptor):
     def __init__(self, nbins=DEFAULT_1D_HISTOGRAM_NBINS):
         self.nbins = nbins
-        self.thetas = np.pi * np.array([0, 1/4, 1/2, 3/4])
-        self.sizes = np.array([10, 20])
 
     @property
     def shape(self):
-        return self.sizes.size, self.thetas.size, self.nbins
+        return gb.sizes.size, gb.thetas.size, self.nbins
 
     def compute(self, image):
         image = gray2rgb(image)
         lab = rgb2lab(image)
         l_ = img_as_float(lab[:, :, 0])
 
-        histograms = np.zeros((self.sizes.size, self.thetas.size, self.nbins))
+        histograms = np.zeros((gb.sizes.size, gb.thetas.size, self.nbins))
 
-        for s_i, s in enumerate(self.sizes):
-            for t_i, t in enumerate(self.thetas):
-                kernel = compute_gabor_kernel(s, 1/s, t)
+        for s_i, s in enumerate(gb.sizes):
+            for t_i, t in enumerate(gb.thetas):
+                kernel = gb.kernels[s_i][t_i]
                 gabor_real = ndi.convolve(l_, kernel)
                 histograms[s_i, t_i, :] = exposure.histogram(gabor_real, nbins=self.nbins)[0]
 
@@ -342,24 +351,21 @@ class GaborHistogram(Descriptor):
 
 
 class GaborLayout(Descriptor):
-    def __init__(self):
-        self.thetas = np.pi * np.array([0, 1 / 4, 1 / 2, 3 / 4])
-        self.sizes = np.array([10, 20])
-
     @property
     def shape(self):
-        return self.sizes.size, self.thetas.size, 8, 8
+        return gb.sizes.size, gb.thetas.size, 8, 8
 
     def compute(self, image):
         image = gray2rgb(image)
+        # TODO save lab images if possible
         lab = rgb2lab(image)
         l_ = img_as_float(lab[:, :, 0])
 
-        layouts = np.zeros((self.sizes.size, self.thetas.size, 8, 8))
+        layouts = np.zeros((gb.sizes.size, gb.thetas.size, 8, 8))
 
-        for s_i, s in enumerate(self.sizes):
-            for t_i, t in enumerate(self.thetas):
-                kernel = compute_gabor_kernel(s, 1 / s, t)
+        for s_i, s in enumerate(gb.sizes):
+            for t_i, t in enumerate(gb.thetas):
+                kernel = gb.kernels[s_i][t_i]
                 gabor_real = ndi.convolve(l_, kernel)
                 layout = sample8x8(gabor_real)
                 layout -= np.min(layout)

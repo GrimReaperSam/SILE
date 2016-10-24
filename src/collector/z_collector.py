@@ -1,4 +1,5 @@
 import abc
+import time
 
 from ..characteristics.descriptors_calculator import DescriptorsCalculator
 from ..characteristics.ranking import ranksum, delta_z
@@ -14,9 +15,9 @@ class ZCollector:
         if self.z_provider.exists(keyword):
             z_values = self.z_provider.provide(keyword)
         else:
-            positives, negatives = self.image_provider.provide(keyword)
             z_values = {}
             for key in self.descriptor_calculator.descriptors:
+                positives, negatives = self.image_provider.provide(keyword)
                 positive_values = self.descriptor_calculator.describe_set(positives, key)
                 negative_values = self.descriptor_calculator.describe_set(negatives, key)
                 rank = ranksum(positive_values, negative_values)

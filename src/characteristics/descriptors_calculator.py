@@ -14,8 +14,8 @@ class DescriptorsCalculator:
             'chroma_layout': ChromaLayout(),
             'hue_layout': HueLayout(),
             'details_hist': DetailsHistogram(),
-            'gabor_hist': GaborHistogram(),
-            'gabor_layout': GaborLayout(),
+            #'gabor_hist': GaborHistogram(),
+            #'gabor_layout': GaborLayout(),
             'lightness_fourier': LightnessFourier()
             #'lbp_hist': LinearBinaryPatternHistogram()
         }
@@ -26,7 +26,6 @@ class DescriptorsCalculator:
             descriptors[k] = v.compute(image)
         return descriptors
 
-    # TODO work with a fucking generator bitch
     def describe_set(self, images, descriptor_name):
         descriptor = self.descriptors[descriptor_name]
         characteristics = np.zeros((len(images), *descriptor.shape))
