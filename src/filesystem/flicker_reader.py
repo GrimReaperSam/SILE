@@ -12,7 +12,8 @@ class FlickerDB:
         self.__read_images()
 
     def ids_by_tag(self, tag):
-        return self.images[self.images.tags.map(lambda t: tag in t)].id
+        tags_series = self.images.tags.map(lambda t: tag in t)
+        return self.images[tags_series].id, self.images[~tags_series].id
 
     def path_from_id(self, image_id):
         return Path(self.__get_prefix(image_id)) / ("%s.jpg" % image_id)

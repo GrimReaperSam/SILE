@@ -1,11 +1,11 @@
-from skimage.io import imread
-import matplotlib.pyplot as plt
-import os
+# from skimage.io import imread
+# import matplotlib.pyplot as plt
+# import os
 
-from src.characteristics.descriptors import *
-from src.characteristics import ranksum, delta_z
+# from src.characteristics.descriptors import *
+# from src.characteristics import ranksum, delta_z
 
-gray_hist = LightnessFourier()
+# gray_hist = LightnessFourier()
 
 # dark_hists = []
 # for i in os.listdir('DB/dark'):
@@ -63,8 +63,8 @@ gray_hist = LightnessFourier()
 # hist = a.collect('a')
 # print(hist)
 
-
-from src.filesystem.flicker_reader import FlickerDB
-
-fdb = FlickerDB()
-print(fdb.images.head())
+from src.filesystem.providers import *
+from src.collector import *
+a = ZCollector(MyZProvider(), MyImageProvider())
+hist = a.collect('bw')
+print(hist)
