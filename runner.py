@@ -65,6 +65,6 @@
 
 from src.filesystem.providers import *
 from src.collector import *
-a = ZCollector(MyImageProvider(), MyZProvider())
+a = ZCollector(MyDescriptorProvider(), MyImageProvider(), MyZProvider())
 hist = a.collect('bw')
 print(hist)

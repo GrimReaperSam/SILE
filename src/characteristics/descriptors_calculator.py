@@ -5,8 +5,9 @@ from skimage.io import imread
 from .descriptors import *
 from ..filesystem.config_paths import *
 
+
 class DescriptorsCalculator:
-    def __init__(self):
+    def __init__(self, descriptor_provider):
         self.descriptors = {
             'gray_hist': GrayLevelHistogram(),
             'chroma_hist': ChromaHistogram(),
@@ -23,6 +24,7 @@ class DescriptorsCalculator:
             'lightness_fourier': LightnessFourier()
             #'lbp_hist': LinearBinaryPatternHistogram()
         }
+        self.descriptor_provider = descriptor_provider
 
     def describe_image(self, image):
         descriptors = {}
@@ -34,15 +36,28 @@ class DescriptorsCalculator:
         descriptor = self.descriptors[descriptor_name]
         characteristics = np.zeros((len(images), *descriptor.shape))
         for image_index, image in enumerate(images):
-            characteristics[image_index] = descriptor.compute(imread(rgb_from_id(image)))
+            description = self.descriptor_provider.provide(image, descriptor_name)
+            if not description:
+                description = descriptor.compute(imread(rgb_from_id(image)))
+                self.descriptor_provider.save(image, descriptor_name, description)
+            characteristics[image_index] = description
         return characteristics
 
 
 class DescriptorProvider(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def provide(self, keyword):
+    def provide(self, image_id, descriptor_name):
         """
-        :param keyword: The tag of the images
+        :param image_id: The id of the image
+        :param descriptor_name: The name of the descriptor
         :return: An iterator over the images that have this tag and another
                  over the ones that don't.
+        """
+
+    @abc.abstractmethod
+    def save(self, image_id, descriptor_name, description):
+        """
+        :param image_id: The id of the image
+        :param descriptor_name: The name of the descriptor
+        :param description: The value of the descriptor
         """

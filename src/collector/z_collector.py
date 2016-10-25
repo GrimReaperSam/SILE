@@ -5,10 +5,10 @@ from ..characteristics.ranking import ranksum, delta_z
 
 
 class ZCollector:
-    def __init__(self, image_provider, z_provider):
+    def __init__(self, descriptor_provider, image_provider, z_provider):
         self.image_provider = image_provider
         self.z_provider = z_provider
-        self.descriptor_calculator = DescriptorsCalculator()
+        self.descriptor_calculator = DescriptorsCalculator(descriptor_provider)
 
     def collect(self, keyword):
         if self.z_provider.exists(keyword):
