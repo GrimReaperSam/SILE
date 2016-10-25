@@ -21,11 +21,16 @@ class MyZProvider(ZProvider):
         z_value_path = z_value_from_keyword(keyword)
         z_value_path.parent.mkdir(exist_ok=True, parents=True)
         store = pd.HDFStore(str(z_value_path))
+        # TODO try to find a better way!
         for key, z_value_matrix in z_values_map.items():
             if z_value_matrix.ndim == 1:
-                store.put(key, pd.Series(z_value_matrix['values']))
+                store.put(key, pd.Series(z_value_matrix))
+            elif z_value_matrix.ndim == 2:
+                store.put(key, pd.DataFrame(z_value_matrix))
+            elif z_value_matrix.ndim == 3:
+                store.put(key, pd.Panel(z_value_matrix))
             else:
-                store.put(key, pd.DataFrame(z_value_matrix['values']))
+                store.put(key, pd.Panel4D(z_value_matrix), format='table')
         store.close()
 
 

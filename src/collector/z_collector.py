@@ -21,12 +21,7 @@ class ZCollector:
                 positives, negatives = self.image_provider.provide(keyword)
                 positive_values = self.descriptor_calculator.describe_set(positives, key)
                 negative_values = self.descriptor_calculator.describe_set(negatives, key)
-                rank = ranksum(positive_values, negative_values)
-                delta = delta_z(rank)
-                z_values[key] = {
-                    'values': ranksum(positive_values, negative_values),
-                    'delta_z': delta
-                }
+                z_values[key] = ranksum(positive_values, negative_values)
                 logging.info('End computing %s z-values for %s' % (key, keyword))
             self.z_provider.save(keyword, z_values)
         logging.info('End computing z-values for %s' % keyword)

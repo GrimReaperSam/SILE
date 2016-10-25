@@ -40,25 +40,47 @@
 
 
 # from src.collector import *
+# from src.characteristics.descriptors_calculator import DescriptorProvider
+# import os
+# import pandas as pd
 #
 #
 # class MyImageProvider(ImageProvider):
 #     def provide(self, keyword):
-#         i = os.listdir('DB/dark')[:5]
-#         pos = [imread('DB/dark/' + n) for n in i]
-#         i = os.listdir('DB/white')[:5]
-#         neg = [imread('DB/white/' + n) for n in i]
+#         i = os.listdir('DB/dark')[:2]
+#         pos = ['DB/dark/' + n for n in i]
+#         i = os.listdir('DB/white')[:2]
+#         neg = ['DB/white/' + n for n in i]
 #         return pos, neg
 #
 #
+# class MyDescriptorProvider(DescriptorProvider):
+#     def provide(self, image_id, descriptor_name):
+#         return None
+#
+#     def save(self, image_id, descriptor_name, description):
+#         return None
+#
+#
 # class MyZProvider(ZProvider):
-#     def exists(self, keyword):
-#         return False
-#
 #     def provide(self, keyword):
-#         return keyword * 3, keyword
+#         return None
 #
-# a = ZCollector(MyImageProvider(), MyZProvider())
+#     def save(self, keyword, z_values_map):
+#         z_value_path = 'a.h5'
+#         store = pd.HDFStore(str(z_value_path))
+#         for key, z_value_matrix in z_values_map.items():
+#             if z_value_matrix.ndim == 1:
+#                 store.put(key, pd.Series(z_value_matrix))
+#             elif z_value_matrix.ndim == 2:
+#                 store.put(key, pd.DataFrame(z_value_matrix))
+#             elif z_value_matrix.ndim == 3:
+#                 store.put(key, pd.Panel(z_value_matrix))
+#             else:
+#                 store.put(key, pd.Panel4D(z_value_matrix), format='table')
+#         store.close()
+#
+# a = ZCollector(MyDescriptorProvider(), MyImageProvider(), MyZProvider())
 #
 # hist = a.collect('a')
 # print(hist)
