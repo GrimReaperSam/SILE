@@ -1,5 +1,4 @@
 import abc
-import time
 
 from ..characteristics.descriptors_calculator import DescriptorsCalculator
 from ..characteristics.ranking import ranksum, delta_z
