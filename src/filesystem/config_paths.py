@@ -30,7 +30,7 @@ def lab_from_id(image_id):
 
 
 def descriptor_from_id(image_id, descriptor_name):
-    return DESCRIPTOR_PATHS / __get_prefix(image_id) / image_id / ("%s.pkl" % descriptor_name)
+    return DESCRIPTOR_PATHS / __get_prefix(image_id) / str(image_id) / ("%s.pkl" % descriptor_name)
 
 
 def __get_prefix(image_id):
