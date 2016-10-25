@@ -37,7 +37,7 @@ class DescriptorsCalculator:
         characteristics = np.zeros((len(images), *descriptor.shape))
         for image_index, image in enumerate(images):
             description = self.descriptor_provider.provide(image, descriptor_name)
-            if not description:
+            if description is None:
                 description = descriptor.compute(imread(rgb_from_id(image)))
                 self.descriptor_provider.save(image, descriptor_name, description)
             characteristics[image_index] = description
