@@ -23,9 +23,9 @@ class MyZProvider(ZProvider):
         store = pd.HDFStore(str(z_value_path))
         for key, z_value_matrix in z_values_map.items():
             if z_value_matrix.ndim == 1:
-                store.put(key, pd.Series(z_value_matrix))
+                store.put(key, pd.Series(z_value_matrix['values']))
             else:
-                store.put(key, pd.DataFrame(z_value_matrix))
+                store.put(key, pd.DataFrame(z_value_matrix['values']))
         store.close()
 
 
