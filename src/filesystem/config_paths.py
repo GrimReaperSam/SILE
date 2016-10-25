@@ -7,7 +7,7 @@ WORK_PATH = Path('/data/lahoud/DB')
 
 # MIR FLICKER BASE FILE
 FLICKER_BASE_TXT = BASE_PATH / 'id_kw_mirflickr.txt'
-FLICKER_PANDAS_STRUCTURE = 'mirflickr_pd.pkl'
+FLICKER_PANDAS_STRUCTURE = WORK_PATH / 'mirflickr_pd.pkl'
 
 # DB PATHS
 RGB_IMAGES = BASE_PATH / DB_PATH / 'photos/1024'

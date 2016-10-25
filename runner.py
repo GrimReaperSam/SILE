@@ -63,8 +63,13 @@
 # hist = a.collect('a')
 # print(hist)
 
+import logging
 from src.filesystem.providers import *
 from src.collector import *
+
+logging.getLogger().setLevel(logging.INFO)
+
 a = ZCollector(MyDescriptorProvider(), MyImageProvider(), MyZProvider())
 hist = a.collect('bw')
 print(hist)
+
