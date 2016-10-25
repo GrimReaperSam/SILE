@@ -1,4 +1,6 @@
 import os
+import logging
+
 import pandas as pd
 
 from .config_paths import *
@@ -14,6 +16,7 @@ class FlickerDB:
         return self.images[tags_series].id, self.images[~tags_series].id
 
     def __read_images(self):
+        logging.info('Start reading pickle db')
         flicker_db_pickle = Path(os.getcwd()) / FLICKER_PANDAS_STRUCTURE
         if flicker_db_pickle.exists():
             self.images = pd.read_pickle(str(flicker_db_pickle))
@@ -21,3 +24,4 @@ class FlickerDB:
             self.images = pd.read_table(FLICKER_BASE_TXT, sep='\t', header=None, names=['id', 'tags'])
             self.images.tags = self.images.tags.map(lambda t: str(t).translate(str.maketrans("<>", "  ")).split())
             self.images.to_pickle(str(flicker_db_pickle))
+        logging.info('End reading pickle db')

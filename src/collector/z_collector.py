@@ -1,4 +1,5 @@
 import abc
+import logging
 
 from ..characteristics.descriptors_calculator import DescriptorsCalculator
 from ..characteristics.ranking import ranksum, delta_z
@@ -11,11 +12,13 @@ class ZCollector:
         self.descriptor_calculator = DescriptorsCalculator(descriptor_provider)
 
     def collect(self, keyword):
+        logging.info('Start computing z-values for %s' % keyword)
         if self.z_provider.exists(keyword):
             z_values = self.z_provider.provide(keyword)
         else:
             z_values = {}
             for key in self.descriptor_calculator.descriptors:
+                logging.info('Start computing %s z-values for %s' % (key, keyword))
                 positives, negatives = self.image_provider.provide(keyword)
                 positive_values = self.descriptor_calculator.describe_set(positives, key)
                 negative_values = self.descriptor_calculator.describe_set(negatives, key)
@@ -25,6 +28,8 @@ class ZCollector:
                     'values': ranksum(positive_values, negative_values),
                     'delta_z': delta
                 }
+                logging.info('End computing %s z-values for %s' % (key, keyword))
+        logging.info('End computing z-values for %s' % keyword)
         return z_values
 
 
