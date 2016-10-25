@@ -12,8 +12,11 @@ class MyZProvider(ZProvider):
     def provide(self, keyword):
         z_value_path = z_value_from_keyword(keyword)
         if z_value_path.exists():
-            pass
-            # GET IT
+            store = pd.HDFStore(str(z_value_path))
+            z_values = {}
+            for key in store.keys():
+                z_values[key] = store[key].as_matrix()
+            return z_values
         else:
             return None
 
