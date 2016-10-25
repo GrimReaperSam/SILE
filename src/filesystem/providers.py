@@ -36,4 +36,5 @@ class MyDescriptorProvider(DescriptorProvider):
 
     def save(self, image_id, descriptor_name, description):
         descriptor_path = descriptor_from_id(image_id, descriptor_name)
-        description.dump(descriptor_path)
+        descriptor_path.parent.mkdir(exist_ok=True, parents=True)
+        description.dump(str(descriptor_path))
