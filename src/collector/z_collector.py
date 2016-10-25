@@ -28,6 +28,7 @@ class ZCollector:
                     'delta_z': delta
                 }
                 logging.info('End computing %s z-values for %s' % (key, keyword))
+            self.z_provider.save(keyword, z_values)
         logging.info('End computing z-values for %s' % keyword)
         return z_values
 
@@ -48,4 +49,13 @@ class ZProvider(metaclass=abc.ABCMeta):
         """
         :param keyword: The tag of the images
         :return: A data structure representing the z_values for different characteristics
+        """
+
+    @abc.abstractmethod
+    def save(self, keyword, z_values_map):
+        """
+
+        :param keyword: The tag of the images
+        :param z_values_map: A map of descriptor and z_values
+        :return:
         """

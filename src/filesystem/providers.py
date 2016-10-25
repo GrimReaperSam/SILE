@@ -1,10 +1,11 @@
+import numpy as np
+import pandas as pd
+
 from ..collector.z_collector import ZProvider, ImageProvider
 from ..characteristics.descriptors_calculator import DescriptorProvider
 
 from .flicker_reader import FlickerDB
 from .config_paths import z_value_from_keyword, descriptor_from_id
-
-import numpy as np
 
 
 class MyZProvider(ZProvider):
@@ -15,6 +16,17 @@ class MyZProvider(ZProvider):
             # GET IT
         else:
             return None
+
+    def save(self, keyword, z_values_map):
+        z_value_path = z_value_from_keyword(keyword)
+        z_value_path.parent.mkdir(exist_ok=True, parents=True)
+        store = pd.HDFStore(str(z_value_path))
+        for key, z_value_matrix in z_values_map.items():
+            if z_value_matrix.ndim == 1:
+                store.put(key, pd.Series(z_value_matrix))
+            else:
+                store.put(key, pd.DataFrame(z_value_matrix))
+        store.close()
 
 
 class MyImageProvider(ImageProvider):
