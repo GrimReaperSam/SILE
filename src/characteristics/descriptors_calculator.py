@@ -39,7 +39,9 @@ class DescriptorsCalculator:
                 description = self.descriptor_provider.provide(image, descriptor_name)
                 if description is None:
                     future = executor.submit(self.describe_image, image, descriptor, descriptor_name)
-                characteristics[image_index] = future.result()
+                    characteristics[image_index] = future.result()
+                else:
+                    characteristics[image_index] = description
         print(characteristics.shape)
         return characteristics
 
