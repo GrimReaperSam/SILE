@@ -13,9 +13,8 @@ class ZCollector:
 
     def collect(self, keyword):
         logging.info('Start computing z-values for %s' % keyword)
-        if self.z_provider.exists(keyword):
-            z_values = self.z_provider.provide(keyword)
-        else:
+        z_values = self.z_provider.provide(keyword)
+        if z_values is None:
             z_values = {}
             for key in self.descriptor_calculator.descriptors:
                 logging.info('Start computing %s z-values for %s' % (key, keyword))
@@ -49,11 +48,4 @@ class ZProvider(metaclass=abc.ABCMeta):
         """
         :param keyword: The tag of the images
         :return: A data structure representing the z_values for different characteristics
-        """
-
-    @abc.abstractmethod
-    def exists(self, keyword):
-        """
-        :param keyword: The tag of the images
-        :return: True if the z_values for this keyword are stored and can be recovered
         """
