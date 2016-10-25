@@ -8,6 +8,7 @@ from .flicker_reader import FlickerDB
 from .config_paths import z_value_from_keyword, descriptor_from_id
 
 
+# TODO try to find a better way!
 class MyZProvider(ZProvider):
     def provide(self, keyword):
         z_value_path = z_value_from_keyword(keyword)
@@ -16,6 +17,7 @@ class MyZProvider(ZProvider):
             z_values = {}
             for key in store.keys():
                 z_values[key] = store[key].as_matrix()
+            store.close()
             return z_values
         else:
             return None
@@ -24,7 +26,6 @@ class MyZProvider(ZProvider):
         z_value_path = z_value_from_keyword(keyword)
         z_value_path.parent.mkdir(exist_ok=True, parents=True)
         store = pd.HDFStore(str(z_value_path))
-        # TODO try to find a better way!
         for key, z_value_matrix in z_values_map.items():
             if z_value_matrix.ndim == 1:
                 store.put(key, pd.Series(z_value_matrix))
