@@ -30,7 +30,7 @@ class MyDescriptorProvider(DescriptorProvider):
     def provide(self, image_id, descriptor_name):
         descriptor_path = descriptor_from_id(image_id, descriptor_name)
         if descriptor_path.exists():
-            return np.load(descriptor_path)
+            return np.load(str(descriptor_path))
         else:
             return None
 
