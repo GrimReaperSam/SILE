@@ -1,4 +1,4 @@
-import abc
+import concurrent.futures as ft
 
 from skimage.io import imread
 
@@ -26,21 +26,21 @@ class DescriptorsCalculator:
         }
         self.descriptor_provider = descriptor_provider
 
-    def describe_image(self, image):
-        descriptors = {}
-        for (k, v) in self.descriptors.items():
-            descriptors[k] = v.compute(image)
-        return descriptors
+    def describe_image(self, image, descriptor, descriptor_name):
+        description = descriptor.compute(imread(rgb_from_id(image)))
+        self.descriptor_provider.save(image, descriptor_name, description)
+        return description
 
     def describe_set(self, images, descriptor_name):
         descriptor = self.descriptors[descriptor_name]
         characteristics = np.zeros((len(images), *descriptor.shape))
-        for image_index, image in enumerate(images):
-            description = self.descriptor_provider.provide(image, descriptor_name)
-            if description is None:
-                description = descriptor.compute(imread(rgb_from_id(image)))
-                self.descriptor_provider.save(image, descriptor_name, description)
-            characteristics[image_index] = description
+        with ft.ThreadPoolExecutor(max_workers=8) as executor:
+            for image_index, image in enumerate(images):
+                description = self.descriptor_provider.provide(image, descriptor_name)
+                if description is None:
+                    future = executor.submit(self.describe_image, image, descriptor, descriptor_name)
+                characteristics[image_index] = future.result()
+        print(characteristics.shape)
         return characteristics
 
 
