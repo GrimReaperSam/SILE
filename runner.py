@@ -38,18 +38,29 @@
 # print(chars.shape)
 # print(chars[0:5])
 
+# i = imread('DB/dark/8.jpg')
+# dh = LightnessFourier()
+# a = dh.compute(i)
+# plt.imshow(a, cmap='gray')
+# plt.show()
 
+
+# import logging
+# logging.getLogger().setLevel(logging.INFO)
+#
 # from src.collector import *
 # from src.characteristics.descriptors_calculator import DescriptorProvider
+#
+# from pathlib import Path
 # import os
 # import pandas as pd
 #
 #
 # class MyImageProvider(ImageProvider):
 #     def provide(self, keyword):
-#         i = os.listdir('DB/dark')[:2]
+#         i = os.listdir('DB/dark')[:10]
 #         pos = ['DB/dark/' + n for n in i]
-#         i = os.listdir('DB/white')[:2]
+#         i = os.listdir('DB/white')[:10]
 #         neg = ['DB/white/' + n for n in i]
 #         return pos, neg
 #
@@ -64,7 +75,16 @@
 #
 # class MyZProvider(ZProvider):
 #     def provide(self, keyword):
-#         return None
+#         z_value_path = Path('a.h5')
+#         if z_value_path.exists():
+#             store = pd.HDFStore(str(z_value_path))
+#             z_values = {}
+#             for key in store.keys():
+#                 z_values[key] = store[key].as_matrix()
+#             store.close()
+#             return z_values
+#         else:
+#             return None
 #
 #     def save(self, keyword, z_values_map):
 #         z_value_path = 'a.h5'

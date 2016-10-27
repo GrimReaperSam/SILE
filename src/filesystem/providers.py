@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pickle
 
 from ..collector.z_collector import ZProvider, ImageProvider
 from ..characteristics.descriptors_calculator import DescriptorProvider
@@ -13,29 +14,14 @@ class MyZProvider(ZProvider):
     def provide(self, keyword):
         z_value_path = z_value_from_keyword(keyword)
         if z_value_path.exists():
-            store = pd.HDFStore(str(z_value_path))
-            z_values = {}
-            for key in store.keys():
-                z_values[key] = store[key].as_matrix()
-            store.close()
-            return z_values
+            return pickle.load(open(str(z_value_path), 'rb'))
         else:
             return None
 
-    def save(self, keyword, z_values_map):
+    def save(self, keyword, z_collection):
         z_value_path = z_value_from_keyword(keyword)
         z_value_path.parent.mkdir(exist_ok=True, parents=True)
-        store = pd.HDFStore(str(z_value_path))
-        for key, z_value_matrix in z_values_map.items():
-            if z_value_matrix.ndim == 1:
-                store.put(key, pd.Series(z_value_matrix))
-            elif z_value_matrix.ndim == 2:
-                store.put(key, pd.DataFrame(z_value_matrix))
-            elif z_value_matrix.ndim == 3:
-                store.put(key, pd.Panel(z_value_matrix))
-            else:
-                store.put(key, pd.Panel4D(z_value_matrix), format='table')
-        store.close()
+        pickle.dump(z_collection, open(str(z_value_path), 'wb'))
 
 
 class MyImageProvider(ImageProvider):
@@ -44,8 +30,8 @@ class MyImageProvider(ImageProvider):
 
     def provide(self, keyword):
         tag_ids, tag_not_ids = self.flicker_db.ids_by_tag(keyword)
-        pos = tag_ids[:50].tolist()
-        neg = tag_not_ids[:50].tolist()
+        pos = tag_ids[:10].tolist()
+        neg = tag_not_ids[:10].tolist()
         return pos, neg
 
 

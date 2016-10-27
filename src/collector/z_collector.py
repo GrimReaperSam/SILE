@@ -13,19 +13,40 @@ class ZCollector:
 
     def collect(self, keyword):
         logging.info('Start computing z-values for %s' % keyword)
-        z_values = self.z_provider.provide(keyword)
-        if z_values is None:
-            z_values = {}
-            for key in self.descriptor_calculator.descriptors:
+        positives, negatives = self.image_provider.provide(keyword)
+        z_collection = self.z_provider.provide(keyword)
+
+        # Check if need to compute using all the descriptors
+        if z_collection is None or z_collection.positive_count != len(positives) or z_collection.negative_count != len(negatives):
+            z_collection = ZCollection()
+            keys = self.descriptor_calculator.descriptors.keys()
+        # Or maybe just a subset of descriptors because the others were computed already
+        else:
+            keys = [key for key in self.descriptor_calculator.descriptors.keys() if key not in z_collection.descriptors.keys()]
+
+        # If no descriptors needed, skip the calculation
+        if len(keys) != 0:
+            for key in keys:
                 logging.info('Start computing %s z-values for %s' % (key, keyword))
-                positives, negatives = self.image_provider.provide(keyword)
                 positive_values = self.descriptor_calculator.describe_set(positives, key)
                 negative_values = self.descriptor_calculator.describe_set(negatives, key)
-                z_values[key] = ranksum(positive_values, negative_values)
+                rank = ranksum(positive_values, negative_values)
+                z_collection.descriptors[key] = rank
+                z_collection.delta_zs[key] = delta_z(rank)
                 logging.info('End computing %s z-values for %s' % (key, keyword))
-            self.z_provider.save(keyword, z_values)
+            z_collection.positive_count = len(positives)
+            z_collection.negative_count = len(negatives)
+            self.z_provider.save(keyword, z_collection)
         logging.info('End computing z-values for %s' % keyword)
-        return z_values
+        return z_collection
+
+
+class ZCollection:
+    def __init__(self):
+        self.descriptors = {}
+        self.delta_zs ={}
+        self.positive_count = 0
+        self.negative_count = 0
 
 
 class ImageProvider(metaclass=abc.ABCMeta):
@@ -43,14 +64,14 @@ class ZProvider(metaclass=abc.ABCMeta):
     def provide(self, keyword):
         """
         :param keyword: The tag of the images
-        :return: A data structure representing the z_values for different characteristics
+        :return: A ZCollection of Z value for different descriptors
         """
 
     @abc.abstractmethod
-    def save(self, keyword, z_values_map):
+    def save(self, keyword, z_collection):
         """
 
         :param keyword: The tag of the images
-        :param z_values_map: A map of descriptor and z_values
+        :param z_collection: A ZCollection of Z value for difference descriptors
         :return:
         """

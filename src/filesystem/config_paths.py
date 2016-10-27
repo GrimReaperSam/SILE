@@ -37,7 +37,7 @@ def descriptor_from_id(image_id, descriptor_name):
 
 
 def z_value_from_keyword(keyword):
-    return Z_VALUE_PATHS / ('%s.h5' % keyword)
+    return Z_VALUE_PATHS / ('%s.pkl' % keyword)
 
 
 def __get_prefix(image_id):
