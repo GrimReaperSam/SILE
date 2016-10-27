@@ -44,7 +44,7 @@ class ZCollector:
 class ZCollection:
     def __init__(self):
         self.descriptors = {}
-        self.delta_zs ={}
+        self.delta_zs = {}
         self.positive_count = 0
         self.negative_count = 0
 
