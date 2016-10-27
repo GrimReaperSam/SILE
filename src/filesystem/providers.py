@@ -30,8 +30,8 @@ class MyImageProvider(ImageProvider):
 
     def provide(self, keyword):
         tag_ids, tag_not_ids = self.flicker_db.ids_by_tag(keyword)
-        pos = tag_ids[:50].tolist()
-        neg = tag_not_ids[:50].tolist()
+        pos = tag_ids[:200].tolist()
+        neg = tag_not_ids[:200].tolist()
         return pos, neg
 
 
