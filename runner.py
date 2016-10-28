@@ -112,6 +112,6 @@ from src.collector import *
 logging.getLogger().setLevel(logging.INFO)
 
 a = ZCollector(MyDescriptorProvider(), MyImageProvider(), MyZProvider())
-hist = a.collect('bw')
+hist = a.collect('night')
 print(hist)
 
