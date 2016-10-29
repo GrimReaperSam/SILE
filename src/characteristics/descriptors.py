@@ -34,7 +34,10 @@ class GrayLevelHistogram(Descriptor):
         return self.nbins,
 
     def compute(self, image):
-        grey = img_as_float(rgb2gray(image))
+        # grey = img_as_float(rgb2gray(image))
+        if image.ndim == 3:
+            image = np.mean(image, 2)
+        grey = img_as_float(image)
         hist = exposure.histogram(grey, nbins=self.nbins)[0]
         return hist / np.sum(hist)
 
