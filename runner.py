@@ -1,21 +1,23 @@
 # from skimage.io import imread
-# import matplotlib.pyplot as plt
 # import os
-
+#
 # from src.characteristics.descriptors import *
 # from src.characteristics import ranksum, delta_z
-
-# gray_hist = LightnessFourier()
-
-# dark_hists = []
-# for i in os.listdir('DB/dark'):
-#     dark = imread('DB/dark/' + i)
-#     dark_hists.append(gray_hist.compute(dark))
+# import numpy as np
 #
-# light_hists = []
-# for i in os.listdir('DB/white'):
-#     light = imread('DB/white/' + i)
-#     light_hists.append(gray_hist.compute(light))
+# gray_hist = GrayLevelHistogram()
+#
+# darks = os.listdir('DB/dark')
+# dark_hists = np.zeros((len(darks), *gray_hist.shape))
+# for index, image in enumerate(darks):
+#     dark = imread('DB/dark/' + image)
+#     dark_hists[index] = gray_hist.compute(dark)
+#
+# lights = os.listdir('DB/white')
+# light_hists = np.zeros((len(lights), *gray_hist.shape))
+# for index, image in enumerate(lights):
+#     light = imread('DB/white/' + image)
+#     light_hists[index] = gray_hist.compute(light)
 #
 # rsum = ranksum(dark_hists, light_hists)
 # print(delta_z(rsum))
@@ -112,6 +114,12 @@ from src.collector import *
 logging.getLogger().setLevel(logging.INFO)
 
 a = ZCollector(MyDescriptorProvider(), MyImageProvider(), MyZProvider())
-hist = a.collect('night')
+hist = a.collect('bw')
 print(hist)
 
+
+# from src.characteristics.descriptors import GrayLevelHistogram
+# from skimage.io import imread
+# glh = GrayLevelHistogram()
+# a = glh.compute(imread('DB/dark/17.jpg'))
+# print(a)
