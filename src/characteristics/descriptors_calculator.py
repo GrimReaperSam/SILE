@@ -1,3 +1,4 @@
+import logging
 import concurrent.futures as ft
 
 from skimage.io import imread
@@ -35,13 +36,16 @@ class DescriptorsCalculator:
         descriptor = self.descriptors[descriptor_name]
         characteristics = np.zeros((len(images), *descriptor.shape))
         with ft.ThreadPoolExecutor(max_workers=8) as executor:
-            for image_index, image in enumerate(images):
-                description = self.descriptor_provider.provide(image, descriptor_name)
-                if description is None:
-                    future = executor.submit(self.describe_image, image, descriptor, descriptor_name)
-                    characteristics[image_index] = future.result()
-                else:
-                    characteristics[image_index] = description
+            try:
+                for image_index, image in enumerate(images):
+                    description = self.descriptor_provider.provide(image, descriptor_name)
+                    if description is None:
+                        future = executor.submit(self.describe_image, image, descriptor, descriptor_name)
+                        characteristics[image_index] = future.result()
+                    else:
+                        characteristics[image_index] = description
+            except Exception:
+                logging.error('Not able to describe image %s')
         print(characteristics.shape)
         return characteristics
 
