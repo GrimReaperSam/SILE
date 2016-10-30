@@ -23,6 +23,8 @@
 # print(dark_hists)
 # print(light_hists)
 # rsum = ranksum(dark_hists, light_hists)
+# print()
+# print(rsum)
 # print(delta_z(rsum))
 #
 # if len(rsum.shape) == 1:
