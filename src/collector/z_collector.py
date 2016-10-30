@@ -3,8 +3,9 @@ import logging
 
 import numpy as np
 
-from ..characteristics.descriptors_calculator import DescriptorsCalculator
-from ..characteristics.ranking import ranksum, delta_z
+from .ranking import ranksum, delta_z
+
+from ..descriptors.descriptors_calculator import DescriptorsCalculator
 
 
 class ZCollector:

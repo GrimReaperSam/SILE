@@ -1,7 +1,7 @@
 from skimage.io import imread
 import os
-from src.characteristics.descriptors import *
-from src.characteristics import ranksum, delta_z
+from src.descriptors.descriptors import *
+from src.collector import ranksum, delta_z
 import numpy as np
 
 gray_hist = GrayLevelHistogram()
@@ -44,7 +44,7 @@ print(delta_z(rsum))
 # logging.getLogger().setLevel(logging.INFO)
 #
 # from src.collector import *
-# from src.characteristics.descriptors_calculator import DescriptorProvider
+# from src.descriptors.descriptors_calculator import DescriptorProvider
 #
 # from pathlib import Path
 # import os

@@ -3,7 +3,7 @@ import math
 import numpy as np
 from scipy.stats import rankdata
 
-from ..shared import *
+from src.shared import *
 
 
 def delta_z(z_matrix):
