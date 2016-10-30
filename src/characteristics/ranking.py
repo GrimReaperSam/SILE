@@ -39,6 +39,6 @@ def ranksum_characteristic(c_pos, c_neg):
     adjusted_t = REFERENCE_SAMPLE_SIZE / positive_count * ranksum_t
     adjusted_mean = REFERENCE_SAMPLE_SIZE / positive_count * expected_mean
     adjusted_variance = REFERENCE_SAMPLE_SIZE ** 2 / (positive_count * negative_count) * expected_variance
-    adjusted_z = math.sqrt(REFERENCE_SAMPLE_SIZE ** 2 / (positive_count * negative_count)) * z
+    adjusted_z = math.sqrt((REFERENCE_SAMPLE_SIZE * negative_count) / (positive_count * REFERENCE_SAMPLE_SIZE)) * z
 
     return adjusted_t, adjusted_mean, adjusted_variance, z
