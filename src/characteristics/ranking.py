@@ -12,6 +12,7 @@ def delta_z(z_matrix):
 
 def ranksum(positives, negatives):
     characteristic_shape = np.array(positives[0]).shape
+    logging.info('Shape is %s' % characteristic_shape)
 
     positive_matrix = np.stack(positives, axis=-1)
     negative_matrix = np.stack(negatives, axis=-1)

@@ -33,6 +33,8 @@ class ZCollector:
                 rank = ranksum(positive_values, negative_values)
                 z_collection.descriptors[key] = rank
                 z_collection.delta_zs[key] = delta_z(rank)
+                z_collection.positive_means[key] = positive_values.mean(axis=0)
+                z_collection.negative_means[key] = negative_values.mean(axis=0)
                 logging.info('End computing %s z-values for %s' % (key, keyword))
             z_collection.positive_count = len(positives)
             z_collection.negative_count = len(negatives)
@@ -45,6 +47,10 @@ class ZCollection:
     def __init__(self):
         self.descriptors = {}
         self.delta_zs = {}
+
+        self.positive_means = {}
+        self.negative_means = {}
+
         self.positive_count = 0
         self.negative_count = 0
 
