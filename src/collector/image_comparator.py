@@ -8,7 +8,7 @@ class ImageComparator:
     def compare(self, image, keyword):
         z_collection = self.z_collector.collect(keyword)
         for key in z_collection.descriptors:
-            delta = self.compare_descriptor(image, key, z_collection.descriptors[key])
+            delta = self.compare_descriptor(image, key, z_collection.descriptors[key].descriptor)
             print(delta)
 
     def compare_descriptor(self, image, key, description):
