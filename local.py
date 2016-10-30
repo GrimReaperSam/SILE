@@ -1,11 +1,16 @@
 from skimage.io import imread
 import os
-
 from src.characteristics.descriptors import *
 from src.characteristics import ranksum, delta_z
 import numpy as np
 
 gray_hist = GrayLevelHistogram()
+
+# i = imread('DB/dark/20.jpg')
+# h = gray_hist.compute(i)
+# print(i.size)
+# print((h * i.size).sum())
+
 
 darks = os.listdir('DB/dark')
 print(darks)
@@ -13,6 +18,7 @@ dark_hists = np.zeros((len(darks), *gray_hist.shape))
 for index, image in enumerate(darks):
     dark = imread('DB/dark/' + image)
     dark_hists[index] = gray_hist.compute(dark)
+print(dark_hists.mean(axis=0))
 
 lights = os.listdir('DB/white')
 print(lights)
@@ -20,8 +26,7 @@ light_hists = np.zeros((len(lights), *gray_hist.shape))
 for index, image in enumerate(lights):
     light = imread('DB/white/' + image)
     light_hists[index] = gray_hist.compute(light)
-print(dark_hists)
-print(light_hists)
+print(light_hists.mean(axis=0))
 rsum = ranksum(dark_hists, light_hists)
 print()
 print(rsum)

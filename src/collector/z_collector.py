@@ -1,6 +1,8 @@
 import abc
 import logging
 
+import numpy as np
+
 from ..characteristics.descriptors_calculator import DescriptorsCalculator
 from ..characteristics.ranking import ranksum, delta_z
 
@@ -30,11 +32,7 @@ class ZCollector:
                 logging.info('Start computing %s z-values for %s' % (key, keyword))
                 positive_values = self.descriptor_calculator.describe_set(positives, key)
                 negative_values = self.descriptor_calculator.describe_set(negatives, key)
-                rank = ranksum(positive_values, negative_values)
-                z_collection.descriptors[key] = rank
-                z_collection.delta_zs[key] = delta_z(rank)
-                z_collection.positive_means[key] = positive_values.mean(axis=0)
-                z_collection.negative_means[key] = negative_values.mean(axis=0)
+                z_collection.descriptors[key] = DescriptorData(positive_values, negative_values)
                 logging.info('End computing %s z-values for %s' % (key, keyword))
             z_collection.positive_count = len(positives)
             z_collection.negative_count = len(negatives)
@@ -46,13 +44,20 @@ class ZCollector:
 class ZCollection:
     def __init__(self):
         self.descriptors = {}
-        self.delta_zs = {}
-
-        self.positive_means = {}
-        self.negative_means = {}
 
         self.positive_count = 0
         self.negative_count = 0
+
+
+class DescriptorData:
+    def __init__(self, positive_values, negative_values):
+        rank = ranksum(positive_values, negative_values)
+        self.descriptor = rank
+        self.delta_z = delta_z(rank)
+        self.mean = positive_values.mean(axis=0)
+        self.std = positive_values.std(axis=0)
+        self.quantiles = np.percentile(positive_values, [25, 50, 75], axis=0)
+        self.q9 = np.percentile(positive_values, [10, 20, 30, 40, 50, 60, 70, 80, 90], axis=0)
 
 
 class ImageProvider(metaclass=abc.ABCMeta):
