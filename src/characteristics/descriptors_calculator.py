@@ -45,7 +45,7 @@ class DescriptorsCalculator:
                     else:
                         characteristics[image_index] = description
             except Exception:
-                logging.error('Not able to describe image %s')
+                logging.error('Not able to describe image %s' % image)
         print(characteristics.shape)
         return characteristics
 
