@@ -13,10 +13,10 @@ class ImageComparator:
 
     def compare_descriptor(self, image, key, description_data):
         descriptor = description_data.descriptor
-        delta = np.zeros(descriptor.descriptor.shape)
+        delta = np.zeros(descriptor.shape)
         image_description = self.z_collector.descriptor_calculator.describe_image(image, key)
 
         less_than = descriptor >= 0
-        delta[less_than] = np.max(np.zeros(descriptor.shape), description_data.quantiles[2] - image_description)
-        delta[~less_than] = np.max(np.zeros(descriptor.shape), image_description - description_data.quantiles[0])
+        delta[less_than] = np.maximum(np.zeros(descriptor.shape), description_data.quantiles[2] - image_description)
+        delta[~less_than] = np.maximum(np.zeros(descriptor.shape), image_description - description_data.quantiles[0])
         return delta
