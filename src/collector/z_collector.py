@@ -34,6 +34,8 @@ class ZCollector:
                 logging.info('Start computing %s z-values for %s' % (key, keyword))
                 positive_values = self.descriptor_calculator.describe_set(positives, key)
                 negative_values = self.descriptor_calculator.describe_set(negatives, key)
+                # positive_values = np.load('positives.pkl')
+                # negative_values = np.load('negatives.pkl')
                 z_collection.descriptors[key] = DescriptorData(positive_values, negative_values)
                 logging.info('End computing %s z-values for %s' % (key, keyword))
             z_collection.positive_count = len(positives)
@@ -53,8 +55,8 @@ class ZCollection:
 
 class DescriptorData:
     def __init__(self, positive_values, negative_values):
-        pickle.dump(positive_values, open('positives.pkl', 'wb'))
-        pickle.dump(negative_values, open('negatives.pkl', 'wb'))
+        positive_values.dump('positives.pkl')
+        negative_values.dump('negatives.pkl')
 
         rank = ranksum(positive_values, negative_values)
         self.descriptor = rank
