@@ -1,5 +1,6 @@
 import abc
 import logging
+import pickle
 
 import numpy as np
 
@@ -52,6 +53,9 @@ class ZCollection:
 
 class DescriptorData:
     def __init__(self, positive_values, negative_values):
+        pickle.dump(positive_values, open('positives.pkl', 'wb'))
+        pickle.dump(negative_values, open('negatives.pkl', 'wb'))
+
         rank = ranksum(positive_values, negative_values)
         self.descriptor = rank
         self.delta_z = delta_z(rank)
