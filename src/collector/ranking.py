@@ -41,7 +41,7 @@ def ranksum_characteristic(c_pos, c_neg):
     adjusted_t = REFERENCE_SAMPLE_SIZE / positive_count * ranksum_t
     adjusted_mean = REFERENCE_SAMPLE_SIZE / positive_count * expected_mean
     adjusted_variance = REFERENCE_SAMPLE_SIZE ** 2 / (positive_count * negative_count) * expected_variance
-    adjusted_z = math.sqrt((REFERENCE_SAMPLE_SIZE * negative_count) / (positive_count * REFERENCE_SAMPLE_SIZE)) * z
+    adjusted_z = math.sqrt((REFERENCE_SAMPLE_SIZE * negative_count) / (positive_count * (10**6 - REFERENCE_SAMPLE_SIZE))) * z
 
     logging.info("Computing ranksum, ranks: %s, positives: %s, negatives: %s, ranksum: %s, z: %s" %
                  (ranks.shape, positive_count, negative_count, ranksum_t, z))
