@@ -1,6 +1,5 @@
 import abc
 import logging
-import pickle
 
 import numpy as np
 
@@ -32,10 +31,10 @@ class ZCollector:
         if len(keys) != 0:
             for key in keys:
                 logging.info('Start computing %s z-values for %s' % (key, keyword))
-                positive_values = self.descriptor_calculator.describe_set(positives, key)
-                negative_values = self.descriptor_calculator.describe_set(negatives, key)
-                # positive_values = np.load('positives.pkl')
-                # negative_values = np.load('negatives.pkl')
+                # positive_values = self.descriptor_calculator.describe_set(positives, key)
+                # negative_values = self.descriptor_calculator.describe_set(negatives, key)
+                positive_values = np.load('positives.pkl')
+                negative_values = np.load('negatives.pkl')
                 z_collection.descriptors[key] = DescriptorData(positive_values, negative_values)
                 logging.info('End computing %s z-values for %s' % (key, keyword))
             z_collection.positive_count = len(positives)

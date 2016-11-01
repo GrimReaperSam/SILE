@@ -34,7 +34,9 @@ def ranksum_characteristic(c_pos, c_neg):
     negative_count = len(c_neg)
 
     ranksum_t = ranks[:positive_count].sum()
+    print(ranksum_t)
     expected_mean = positive_count * (positive_count + negative_count + 1) / 2.0
+    print('Expected mean %s' % expected_mean)
     expected_variance = positive_count * negative_count * (positive_count + negative_count + 1) / 12.0
     z = (ranksum_t - expected_mean) / np.sqrt(expected_variance)
 
@@ -43,8 +45,8 @@ def ranksum_characteristic(c_pos, c_neg):
     adjusted_variance = REFERENCE_SAMPLE_SIZE ** 2 / (positive_count * negative_count) * expected_variance
     adjusted_z = math.sqrt((REFERENCE_SAMPLE_SIZE * negative_count) / (positive_count * (10**6 - REFERENCE_SAMPLE_SIZE))) * z
 
-    logging.info("Computing ranksum, ranks: %s, positives: %s, negatives: %s, ranksum: %s, z: %s" %
-                 (ranks.shape, positive_count, negative_count, ranksum_t, z))
-    logging.info("First few ranks: %s" % ranks[:20])
+    # logging.info("Computing ranksum, ranks: %s, positives: %s, negatives: %s, ranksum: %s, z: %s" %
+    #              (ranks.shape, positive_count, negative_count, ranksum_t, z))
+    # logging.info("First few ranks: %s" % ranks[:20])
 
     return adjusted_t, adjusted_mean, adjusted_variance, adjusted_z

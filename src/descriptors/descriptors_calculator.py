@@ -45,7 +45,7 @@ class DescriptorsCalculator:
                     else:
                         characteristics[image_index] = description
                     if image_index % 1000 == 0:
-                        logging.log('Processed until: %s' % image_index)
+                        logging.info('Processed until: %s' % image_index)
             except Exception:
                 logging.exception('Not able to describe image %s' % image)
         print(characteristics.shape)
