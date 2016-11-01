@@ -27,11 +27,11 @@ class DescriptorsCalculator:
         }
         self.descriptor_provider = descriptor_provider
 
-    def describe_image(self, image, descriptor_name):
+    def describe_image(self, image, descriptor_name, characteristics, image_index):
         descriptor = self.descriptors[descriptor_name]
         description = descriptor.compute(imread(rgb_from_id(image)))
         self.descriptor_provider.save(image, descriptor_name, description)
-        return description
+        characteristics[image_index] = description
 
     def describe_set(self, images, descriptor_name):
         descriptor = self.descriptors[descriptor_name]
@@ -41,8 +41,7 @@ class DescriptorsCalculator:
                 for image_index, image in enumerate(images):
                     description = self.descriptor_provider.provide(image, descriptor_name)
                     if description is None:
-                        future = executor.submit(self.describe_image, image, descriptor_name)
-                        characteristics[image_index] = future.result()
+                        executor.submit(self.describe_image, image, descriptor_name, characteristics, image_index)
                     else:
                         characteristics[image_index] = description
             except Exception:

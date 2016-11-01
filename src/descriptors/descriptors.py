@@ -38,7 +38,7 @@ class GrayLevelHistogram(Descriptor):
         if image.ndim == 3:
             image = np.mean(image, 2)
         grey = img_as_float(image)
-        hist, edges = np.histogram(grey, range=(-8.5, 264.5), bins=self.nbins)
+        hist, edges = np.histogram(grey, range=(0, 256), bins=self.nbins)
         return hist / np.sum(hist)
 
 
