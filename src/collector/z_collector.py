@@ -53,7 +53,8 @@ class ZCollection:
         self.negative_count = 0
 
     def __repr__(self):
-        result = 'ZCollection for %s: \n Positives %s, Negatives: %s\n' % (self.keyword, self.positive_count, self.negative_count)
+        result = 'ZCollection for %s: \n' % self.keyword
+        result += 'Positives %s, Negatives: %s\n' % (self.positive_count, self.negative_count)
         result += 'Descriptors: \n'
         for key in self.descriptors:
             result += 'Descriptor %s:\n' % key
@@ -76,7 +77,7 @@ class DescriptorData:
         self.q9 = np.percentile(positive_values, [10, 20, 30, 40, 50, 60, 70, 80, 90], axis=0)
 
     def __repr__(self):
-        result = 'Z*-values: %s' % self.descriptor
+        result = 'Z*-values: %s\n' % self.descriptor
         result += 'Delta Z*: %s' % self.delta_z
         return result
 

@@ -35,6 +35,8 @@ class DescriptorsCalculator:
 
     def describe_job(self, image, descriptor_name, characteristics, image_index):
         description = self.descriptor_provider.provide(image, descriptor_name)
+        if np.all(description==0):
+            logging.info('Descriptions are zeros: %s.jpg' % image)
         if description is None or np.all(description == 0):
             description = self.describe_image(image, descriptor_name)
         characteristics[image_index] = description
