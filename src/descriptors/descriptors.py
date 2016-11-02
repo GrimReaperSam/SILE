@@ -1,7 +1,7 @@
 import abc
 
 from skimage import exposure, img_as_float
-from skimage.color import rgb2gray, rgb2lab, lab2lch, gray2rgb
+from skimage.color import rgb2gray, rgb2lab, lab2lch, gray2rgb, rgb2xyz, xyz2lab
 
 from scipy import ndimage as ndi
 
@@ -137,10 +137,11 @@ class ChromaHistogram(Descriptor):
 
     def compute(self, image):
         image = gray2rgb(image)
-        lab = rgb2lab(image)
-        lch = lab2lch(lab)
-        c_ = img_as_float(lch[:, :, 1])
-        c_hist = exposure.histogram(c_, nbins=self.nbins)[0]
+        lab = xyz2lab(rgb2xyz(image))
+        c_ = np.sqrt(lab[:, :, 1] ** 2 + lab[:, :, 2] ** 2)
+        # lch = lab2lch(lab)
+        # c_ = img_as_float(lch[:, :, 1])
+        c_hist = np.histogram(c_, range=(0, 50), bins=self.nbins)[0]
         return c_hist / np.sum(c_hist)
 
 

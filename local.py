@@ -67,10 +67,10 @@
 
 
 from skimage.io import imread
-from src.descriptors.descriptors import GrayLevelHistogram
+from src.descriptors.descriptors import ChromaHistogram
 import numpy as np
 
-glh = GrayLevelHistogram()
+glh = ChromaHistogram()
 image = imread('DB/59898.jpg')
 np.set_printoptions(suppress=True)
 print(glh.compute(image))
