@@ -1,11 +1,13 @@
 import abc
 
 from skimage import exposure, img_as_float
-from skimage.color import rgb2gray, rgb2lab, lab2lch, gray2rgb, rgb2xyz, xyz2lab
-
+from skimage.color import rgb2lab, lab2lch, gray2rgb
+from skimage.io import imread
 from scipy import ndimage as ndi
 
 from .helpers import *
+
+from ..filesystem.config_paths import *
 from ..shared import *
 
 
@@ -24,6 +26,25 @@ class Descriptor(metaclass=abc.ABCMeta):
         :return: The descriptor for this image
         """
 
+    def _get_image(self, image):
+        try:
+            image_data = imread(rgb_from_id(image))
+        except Exception:
+            missing_data_image = ndi.imread(rgb_from_id(image))
+            image_data = np.array(missing_data_image.item())
+        return image_data
+
+    def _get_lab(self, image):
+        lab_path = lab_from_id(image)
+        if lab_path.exists():
+            return np.load(str(lab_path))
+        else:
+            image_data = self._get_image(image)
+            lab_data = rgb2lab(image_data)
+            lab_path.parent.mkdir(exist_ok=True, parents=True)
+            lab_data.dump(str(lab_path))
+            return lab_data
+
 
 class GrayLevelHistogram(Descriptor):
     def __init__(self, nbins=DEFAULT_1D_HISTOGRAM_NBINS):
@@ -34,11 +55,10 @@ class GrayLevelHistogram(Descriptor):
         return self.nbins,
 
     def compute(self, image):
-        # grey = img_as_float(rgb2gray(image))
-        if image.ndim == 3:
-            image = np.mean(image, 2)
-        grey = img_as_float(image)
-        hist, edges = np.histogram(grey, range=(0, 256), bins=self.nbins)
+        image_data = self._get_image(image)
+        if image_data.ndim == 3:
+            image_data = np.mean(image_data, 2)
+        hist = np.histogram(image_data, range=(0, 256), bins=self.nbins)[0]
         return hist / np.sum(hist)
 
 
@@ -54,7 +74,7 @@ class LABHistogram(Descriptor):
         image = gray2rgb(image)
         lab = rgb2lab(image)
         h, w, d = lab.shape
-        lab_ = img_as_float(lab.reshape((h*w, d)))
+        lab_ = img_as_float(lab.reshape((h * w, d)))
         lab_hist = np.histogramdd(lab_, bins=self.nbins)[0]
         return lab_hist / np.sum(lab_hist)
 
@@ -88,7 +108,7 @@ class LCHHistogram(Descriptor):
         image = gray2rgb(image)
         h, w, d = image.shape
         lab = rgb2lab(image)
-        lch = img_as_float(lab2lch(lab)).reshape(h*w, d)
+        lch = img_as_float(lab2lch(lab)).reshape(h * w, d)
         lch_hist = np.histogramdd(lch, bins=self.nbins)[0]
         return lch_hist / np.sum(lch_hist)
 
@@ -106,7 +126,7 @@ class CHHistogram(Descriptor):
         lab = rgb2lab(image)
         lch = img_as_float(lab2lch(lab))
         h, w, d = lch.shape
-        ch_ = lch[:, :, 1:3].reshape(h*w, 2)
+        ch_ = lch[:, :, 1:3].reshape(h * w, 2)
         ch_hist = np.histogramdd(ch_, bins=self.nbins)[0]
         return ch_hist / np.sum(ch_hist)
 
@@ -137,10 +157,9 @@ class ChromaHistogram(Descriptor):
 
     def compute(self, image):
         image = gray2rgb(image)
-        lab = xyz2lab(rgb2xyz(image))
-        c_ = np.sqrt(lab[:, :, 1] ** 2 + lab[:, :, 2] ** 2)
-        # lch = lab2lch(lab)
-        # c_ = img_as_float(lch[:, :, 1])
+        lab = rgb2lab(image)
+        lch = lab2lch(lab)
+        c_ = lch[..., 1]
         c_hist = np.histogram(c_, range=(0, 50), bins=self.nbins)[0]
         return c_hist / np.sum(c_hist)
 
@@ -173,7 +192,7 @@ class RGBHistogram(Descriptor):
     def compute(self, image):
         image = gray2rgb(image)
         h, w, d = image.shape
-        rgb = img_as_float(image.reshape((h*w, d)))
+        rgb = img_as_float(image.reshape((h * w, d)))
         rgb_hist = np.histogramdd(rgb, bins=self.nbins)[0]
         return rgb_hist / np.sum(rgb_hist)
 
@@ -326,7 +345,9 @@ class GaborBanks:
         self.kernels = [[None] * self.thetas.size] * self.sizes.size
         for s_i, s in enumerate(self.sizes):
             for t_i, t in enumerate(self.thetas):
-                self.kernels[s_i][t_i] = compute_gabor_kernel(s, 1/s, t)
+                self.kernels[s_i][t_i] = compute_gabor_kernel(s, 1 / s, t)
+
+
 gb = GaborBanks()
 
 

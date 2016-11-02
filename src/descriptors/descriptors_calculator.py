@@ -1,11 +1,7 @@
 import logging
 import concurrent.futures as ft
 
-from skimage.io import imread
-from scipy import ndimage # For reading images with missing data
-
 from .descriptors import *
-from ..filesystem.config_paths import *
 
 
 class DescriptorsCalculator:
@@ -30,12 +26,7 @@ class DescriptorsCalculator:
 
     def describe_image(self, image, descriptor_name):
         descriptor = self.descriptors[descriptor_name]
-        try:
-            image_data = imread(rgb_from_id(image))
-        except Exception:
-            missing_data_image = ndimage.imread(rgb_from_id(image))
-            image_data = np.array(missing_data_image.item())
-        description = descriptor.compute(image_data)
+        description = descriptor.compute(image)
         self.descriptor_provider.save(image, descriptor_name, description)
         return description
 
