@@ -60,6 +60,8 @@ class DescriptorData:
         rank = ranksum(positive_values, negative_values)
         self.descriptor = rank
         self.delta_z = delta_z(rank)
+        logging.info('Delta z is %s' % self.delta_z)
+
         self.mean = positive_values.mean(axis=0)
         self.std = positive_values.std(axis=0)
         self.quantiles = np.percentile(positive_values, [25, 50, 75], axis=0)

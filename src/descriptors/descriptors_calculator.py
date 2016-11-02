@@ -27,11 +27,19 @@ class DescriptorsCalculator:
         }
         self.descriptor_provider = descriptor_provider
 
-    def describe_image(self, image, descriptor_name, characteristics, image_index):
+    def describe_image(self, image, descriptor_name):
         descriptor = self.descriptors[descriptor_name]
         description = descriptor.compute(imread(rgb_from_id(image)))
         self.descriptor_provider.save(image, descriptor_name, description)
+        return description
+
+    def describe_job(self, image, descriptor_name, characteristics, image_index):
+        description = self.descriptor_provider.provide(image, descriptor_name)
+        if description is None or np.all(description == 0):
+            description = self.describe_image(image, descriptor_name)
         characteristics[image_index] = description
+        if image_index % 1000 == 0:
+            logging.info('Processed until: %s' % image_index)
 
     def describe_set(self, images, descriptor_name):
         descriptor = self.descriptors[descriptor_name]
@@ -39,13 +47,7 @@ class DescriptorsCalculator:
         with ft.ThreadPoolExecutor(max_workers=8) as executor:
             try:
                 for image_index, image in enumerate(images):
-                    description = self.descriptor_provider.provide(image, descriptor_name)
-                    if description is None:
-                        executor.submit(self.describe_image, image, descriptor_name, characteristics, image_index)
-                    else:
-                        characteristics[image_index] = description
-                    if image_index % 1000 == 0:
-                        logging.info('Processed until: %s' % image_index)
+                    executor.submit(self.describe_job, image, descriptor_name, characteristics, image_index)
             except Exception:
                 logging.exception('Not able to describe image %s' % image)
         print(characteristics.shape)
