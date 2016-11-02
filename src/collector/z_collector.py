@@ -34,9 +34,7 @@ class ZCollector:
             for key in keys:
                 logging.info('Start computing %s z-values for %s' % (key, keyword))
                 descriptor_path = collections_from_descriptor(key)
-                print(descriptor_path)
                 if descriptor_path.exists():
-                    print('here')
                     descriptions_all = np.load(str(descriptor_path))
                 else:
                     descriptions_all = self.descriptor_calculator.describe_set(self.flicker_db.all_ids(), key)
