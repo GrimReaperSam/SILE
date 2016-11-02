@@ -13,10 +13,10 @@ class FlickerDB:
 
     def ids_by_tag(self, tag):
         tags_series = self.images.tags.map(lambda t: tag in t)
-        return self.images[tags_series].id.tolist(), self.images[~tags_series].id.tolist()
+        return self.images[tags_series].id.values, self.images[~tags_series].id.values
 
     def all_ids(self):
-        return self.images.id.tolist()
+        return self.images.id.values
 
     def __read_images(self):
         logging.info('Start reading pickle db')
