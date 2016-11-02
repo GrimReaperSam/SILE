@@ -6,3 +6,5 @@ gen
 
 DB
 Matlab
+.ipynb_checkpoints
+*.ipynb

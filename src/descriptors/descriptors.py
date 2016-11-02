@@ -40,6 +40,7 @@ class Descriptor(metaclass=abc.ABCMeta):
             return np.load(str(lab_path))
         else:
             image_data = self._get_image(image)
+            image_data = gray2rgb(image_data)
             lab_data = rgb2lab(image_data)
             lab_path.parent.mkdir(exist_ok=True, parents=True)
             lab_data.dump(str(lab_path))
