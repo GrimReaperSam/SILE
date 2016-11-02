@@ -19,6 +19,8 @@ DESCRIPTOR_PATHS = WORK_PATH / 'descriptors'
 # Z-VALUE PATHS
 Z_VALUE_PATHS = WORK_PATH / 'z-values'
 
+# COLLECTION PATHS
+COLLECTIONS_PATHS = WORK_PATH / 'collections'
 
 def path_from_id(image_id):
     return Path(__get_prefix(image_id)) / ('%s.jpg' % image_id)
@@ -38,6 +40,10 @@ def descriptor_from_id(image_id, descriptor_name):
 
 def z_value_from_keyword(keyword):
     return Z_VALUE_PATHS / ('%s.pkl' % keyword)
+
+
+def collections_from_descriptor(descriptor_name):
+    return COLLECTIONS_PATHS / ('%s.pkl' % descriptor_name)
 
 
 def __get_prefix(image_id):

@@ -7,6 +7,7 @@ from .ranking import ranksum, delta_z
 
 from ..descriptors.descriptors_calculator import DescriptorsCalculator
 from ..filesystem.flicker_reader import FlickerDB
+from ..filesystem.config_paths import collections_from_descriptor
 
 
 class ZCollector:
@@ -32,7 +33,13 @@ class ZCollector:
         if len(keys) != 0:
             for key in keys:
                 logging.info('Start computing %s z-values for %s' % (key, keyword))
-                descriptions_all = self.descriptor_calculator.describe_set(self.flicker_db.all_ids(), key)
+                descriptor_path = collections_from_descriptor(key)
+                if descriptor_path.exists():
+                    descriptions_all = np.load(str(descriptor_path))
+                else:
+                    descriptions_all = self.descriptor_calculator.describe_set(self.flicker_db.all_ids(), key)
+                    descriptor_path.parent.mkdir(exist_ok=True, parents=True)
+                    descriptions_all.dump(str(descriptor_path))
                 z_collection.descriptors[key] = DescriptorData(positives-1, negatives-1, descriptions_all)
                 logging.info('End computing %s z-values for %s' % (key, keyword))
             z_collection.positive_count = len(positives)
@@ -62,7 +69,6 @@ class ZCollection:
 
 class DescriptorData:
     def __init__(self, positive_indices, negative_indices, descriptions):
-        descriptions.dump('all.pkl')
         z_stars = ranksum(descriptions[positive_indices], descriptions[negative_indices])
         self.descriptor = z_stars
         self.delta_z = delta_z(z_stars)
