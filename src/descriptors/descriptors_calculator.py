@@ -7,11 +7,11 @@ from .descriptors import *
 class DescriptorsCalculator:
     def __init__(self, descriptor_provider):
         self.descriptors = {
-            'gray_hist': GrayLevelHistogram(),
+            # 'gray_hist': GrayLevelHistogram(),
             # 'chroma_hist': ChromaHistogram(),
             # 'hue_angle_hist': HueHistogram(),
             # 'rgb_hist': RGBHistogram(),
-            # 'lab_hist': LABHistogram(),
+            'lab_hist': LABHistogram(),
             # 'lch_hist': LCHHistogram(),
             # 'lightness_layout': LightnessLayout(),
             # 'chroma_layout': ChromaLayout(),

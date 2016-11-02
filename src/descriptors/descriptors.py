@@ -71,8 +71,9 @@ class LABHistogram(Descriptor):
         return self.nbins, self.nbins, self.nbins
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        image_data = self._get_image(image)
+        image_data = gray2rgb(image_data)
+        lab = rgb2lab(image_data)
         h, w, d = lab.shape
         lab_ = img_as_float(lab.reshape((h * w, d)))
         lab_hist = np.histogramdd(lab_, bins=self.nbins)[0]
