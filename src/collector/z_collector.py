@@ -58,6 +58,7 @@ class ZCollection:
         for key in self.descriptors:
             result += 'Descriptor %s:\n' % key
             result += repr(self.descriptors[key])
+        return result
 
 
 class DescriptorData:
@@ -77,6 +78,7 @@ class DescriptorData:
     def __repr__(self):
         result = 'Z*-values: %s' % self.descriptor
         result += 'Delta Z*: %s' % self.delta_z
+        return result
 
 
 class ImageProvider(metaclass=abc.ABCMeta):
