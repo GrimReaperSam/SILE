@@ -40,7 +40,7 @@ class ZCollector:
                     descriptions_all = self.descriptor_calculator.describe_set(self.flicker_db.all_ids(), key)
                     descriptor_path.parent.mkdir(exist_ok=True, parents=True)
                     descriptions_all.dump(str(descriptor_path))
-                z_collection.descriptors[key] = DescriptorData(positives-1, negatives-1, descriptions_all)
+                z_collection.descriptors[key] = DescriptorData(descriptions_all, positives - 1, negatives - 1)
                 logging.info('End computing %s z-values for %s' % (key, keyword))
             z_collection.positive_count = len(positives)
             z_collection.negative_count = len(negatives)
@@ -68,10 +68,9 @@ class ZCollection:
 
 
 class DescriptorData:
-    def __init__(self, positive_indices, negative_indices, descriptions):
-        z_stars = ranksum(descriptions[positive_indices], descriptions[negative_indices])
-        self.descriptor = z_stars
-        self.delta_z = delta_z(z_stars)
+    def __init__(self, descriptions, positive_indices, negative_indices):
+        self.descriptor = ranksum(descriptions, positive_indices, negative_indices)
+        self.delta_z = delta_z(self.descriptor)
 
         self.mean = descriptions[positive_indices].mean(axis=0)
         self.std = descriptions[positive_indices].std(axis=0)

@@ -9,12 +9,12 @@ class ImageComparator:
         z_collection = self.z_collector.collect(keyword)
         for key in z_collection.descriptors:
             description_data = z_collection.descriptors[key]
-            delta = self.compare_descriptor(image, key, description_data)
+            delta = self.__compare_descriptor(image, key, description_data)
             z_times_delta = description_data.descriptor * delta
             print(delta)
             print(z_times_delta)
 
-    def compare_descriptor(self, image, key, description_data):
+    def __compare_descriptor(self, image, key, description_data):
         descriptor = description_data.descriptor
         delta = np.zeros(descriptor.shape)
         image_description = self.z_collector.descriptor_calculator.describe_image(image, key)
