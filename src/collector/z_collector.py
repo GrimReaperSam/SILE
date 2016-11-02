@@ -62,6 +62,7 @@ class ZCollection:
 
 class DescriptorData:
     def __init__(self, positive_indices, negative_indices, descriptions):
+        descriptions.dump('all.pkl')
         z_stars = ranksum(descriptions[positive_indices], descriptions[negative_indices])
         self.descriptor = z_stars
         self.delta_z = delta_z(z_stars)
