@@ -4,7 +4,7 @@ from src.collector import *
 
 logging.getLogger().setLevel(logging.INFO)
 
-a = ZCollector(MyDescriptorProvider(), MyImageProvider(), MyZProvider())
+a = ZCollector(MyDescriptorProvider(), MyZProvider())
 hist = a.collect('night')
 print(hist)
 

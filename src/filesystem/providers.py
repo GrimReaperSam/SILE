@@ -23,15 +23,6 @@ class MyZProvider(ZProvider):
         pickle.dump(z_collection, open(str(z_value_path), 'wb'))
 
 
-class MyImageProvider(ImageProvider):
-    def __init__(self):
-        self.flicker_db = FlickerDB()
-
-    def provide(self, keyword):
-        tag_ids, tag_not_ids = self.flicker_db.ids_by_tag(keyword)
-        return tag_ids.tolist(), tag_not_ids.tolist()
-
-
 class MyDescriptorProvider(DescriptorProvider):
     def provide(self, image_id, descriptor_name):
         descriptor_path = descriptor_from_id(image_id, descriptor_name)
