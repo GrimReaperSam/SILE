@@ -21,7 +21,7 @@ class ZCollector:
 
         # Check if need to compute using all the descriptors
         if z_collection is None or z_collection.positive_count != len(positives) or z_collection.negative_count != len(negatives):
-            z_collection = ZCollection()
+            z_collection = ZCollection(keyword)
             keys = self.descriptor_calculator.descriptors.keys()
         # Or maybe just a subset of descriptors because the others were computed already
         else:
@@ -45,11 +45,19 @@ class ZCollector:
 
 
 class ZCollection:
-    def __init__(self):
+    def __init__(self, keyword):
+        self.keyword = keyword
         self.descriptors = {}
 
         self.positive_count = 0
         self.negative_count = 0
+
+    def __repr__(self):
+        result = 'ZCollection for %s: \n Positives %s, Negatives: %s\n' % (self.keyword, self.positive_count, self.negative_count)
+        result += 'Descriptors: \n'
+        for key in self.descriptors:
+            result += 'Descriptor %s:\n' % key
+            result += repr(self.descriptors[key])
 
 
 class DescriptorData:
@@ -57,15 +65,18 @@ class DescriptorData:
         positive_values.dump('positives.pkl')
         negative_values.dump('negatives.pkl')
 
-        rank = ranksum(positive_values, negative_values)
-        self.descriptor = rank
-        self.delta_z = delta_z(rank)
-        logging.info('Delta z is %s' % self.delta_z)
+        z_stars = ranksum(positive_values, negative_values)
+        self.descriptor = z_stars
+        self.delta_z = delta_z(z_stars)
 
         self.mean = positive_values.mean(axis=0)
         self.std = positive_values.std(axis=0)
         self.quantiles = np.percentile(positive_values, [25, 50, 75], axis=0)
         self.q9 = np.percentile(positive_values, [10, 20, 30, 40, 50, 60, 70, 80, 90], axis=0)
+
+    def __repr__(self):
+        result = 'Z*-values: %s' % self.descriptor
+        result += 'Delta Z*: %s' % self.delta_z
 
 
 class ImageProvider(metaclass=abc.ABCMeta):
