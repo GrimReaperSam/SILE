@@ -6,17 +6,18 @@ import numpy as np
 from .ranking import ranksum, delta_z
 
 from ..descriptors.descriptors_calculator import DescriptorsCalculator
+from ..filesystem.flicker_reader import FlickerDB
 
 
 class ZCollector:
-    def __init__(self, descriptor_provider, image_provider, z_provider):
-        self.image_provider = image_provider
-        self.z_provider = z_provider
+    def __init__(self, descriptor_provider, z_provider):
+        self.flicker_db = FlickerDB()
         self.descriptor_calculator = DescriptorsCalculator(descriptor_provider)
+        self.z_provider = z_provider
 
     def collect(self, keyword):
         logging.info('Start computing z-values for %s' % keyword)
-        positives, negatives = self.image_provider.provide(keyword)
+        positives, negatives = self.flicker_db.ids_by_tag(keyword)
         z_collection = self.z_provider.provide(keyword)
 
         # Check if need to compute using all the descriptors
@@ -31,11 +32,8 @@ class ZCollector:
         if len(keys) != 0:
             for key in keys:
                 logging.info('Start computing %s z-values for %s' % (key, keyword))
-                positive_values = self.descriptor_calculator.describe_set(positives, key)
-                negative_values = self.descriptor_calculator.describe_set(negatives, key)
-                # positive_values = np.load('positives.pkl')
-                # negative_values = np.load('negatives.pkl')
-                z_collection.descriptors[key] = DescriptorData(positive_values, negative_values)
+                descriptions_all = self.descriptor_calculator.describe_set(self.flicker_db.all_ids(), key)
+                z_collection.descriptors[key] = DescriptorData(positives-1, negatives-1, descriptions_all)
                 logging.info('End computing %s z-values for %s' % (key, keyword))
             z_collection.positive_count = len(positives)
             z_collection.negative_count = len(negatives)
@@ -63,18 +61,15 @@ class ZCollection:
 
 
 class DescriptorData:
-    def __init__(self, positive_values, negative_values):
-        positive_values.dump('positives.pkl')
-        negative_values.dump('negatives.pkl')
-
-        z_stars = ranksum(positive_values, negative_values)
+    def __init__(self, positive_indices, negative_indices, descriptions):
+        z_stars = ranksum(descriptions[positive_indices], descriptions[negative_indices])
         self.descriptor = z_stars
         self.delta_z = delta_z(z_stars)
 
-        self.mean = positive_values.mean(axis=0)
-        self.std = positive_values.std(axis=0)
-        self.quantiles = np.percentile(positive_values, [25, 50, 75], axis=0)
-        self.q9 = np.percentile(positive_values, [10, 20, 30, 40, 50, 60, 70, 80, 90], axis=0)
+        self.mean = descriptions[positive_indices].mean(axis=0)
+        self.std = descriptions[positive_indices].std(axis=0)
+        self.quantiles = np.percentile(descriptions[positive_indices], [25, 50, 75], axis=0)
+        self.q9 = np.percentile(descriptions[positive_indices], [10, 20, 30, 40, 50, 60, 70, 80, 90], axis=0)
 
     def __repr__(self):
         result = 'Z*-values: %s\n' % self.descriptor
