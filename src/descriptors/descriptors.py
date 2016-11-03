@@ -158,8 +158,7 @@ class ChromaHistogram(Descriptor):
         return self.nbins,
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         lch = lab2lch(lab)
         c_ = lch[..., 1]
         c_hist = np.histogram(c_, range=(0, 50), bins=self.nbins)[0]
