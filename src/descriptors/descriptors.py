@@ -1,11 +1,12 @@
 import abc
+import logging
 
 from skimage import exposure, img_as_float
 from skimage.color import gray2rgb, lab2lch
 from skimage.io import imread
 
 from scipy import ndimage as ndi
-from scipy.io import loadmat
+from scipy.io import loadmat, savemat
 
 from .helpers import *
 from .image_ops import *
@@ -39,13 +40,20 @@ class Descriptor(metaclass=abc.ABCMeta):
 
     def _get_lab(self, image):
         lab_path = lab_from_id(image)
+        update = False
         if lab_path.exists():
-            return loadmat(str(lab_path))['data']
-        else:
-            image_data = self._get_image(image)
-            image_data = gray2rgb(image_data)
-            lab_data = rgb_to_lab(image_data)
-            return lab_data
+            try:
+                return loadmat(str(lab_path))['data']
+            except Exception:
+                logging.info('Could not load lab data for %s' % image)
+                update = True
+        image_data = self._get_image(image)
+        image_data = gray2rgb(image_data)
+        lab_data = rgb_to_lab(image_data)
+        if update:
+            logging.info('Updating corrupt lab data for %s' % image)
+            savemat(str(lab_path), mdict={'data': lab_data})
+        return lab_data
 
 
 class GrayLevelHistogram(Descriptor):
