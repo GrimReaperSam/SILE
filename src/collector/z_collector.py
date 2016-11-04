@@ -34,13 +34,13 @@ class ZCollector:
             for key in keys:
                 logging.info('Start computing %s z-values for %s' % (key, keyword))
                 descriptor_path = collections_from_descriptor(key)
+                descriptions = None
                 if descriptor_path.exists():
-                    descriptions_all = np.load(str(descriptor_path))
-                else:
-                    descriptions_all = self.descriptor_calculator.describe_set(self.flicker_db.all_ids(), key)
-                    descriptor_path.parent.mkdir(exist_ok=True, parents=True)
-                    descriptions_all.dump(str(descriptor_path))
-                z_collection.descriptors[key] = DescriptorData(descriptions_all, positives - 1, negatives - 1)
+                    descriptions = np.load(str(descriptor_path))
+                descriptions = self.descriptor_calculator.describe_set(self.flicker_db.all_ids(), key, descriptions)
+                descriptor_path.parent.mkdir(exist_ok=True, parents=True)
+                descriptions.dump(str(descriptor_path))
+                z_collection.descriptors[key] = DescriptorData(descriptions, positives - 1, negatives - 1)
                 logging.info('End computing %s z-values for %s' % (key, keyword))
             z_collection.positive_count = len(positives)
             z_collection.negative_count = len(negatives)

@@ -28,28 +28,35 @@ class DescriptorsCalculator:
         descriptor = self.descriptors[descriptor_name]
         return descriptor.compute(image)
 
-    def describe_job(self, image, descriptor_name, characteristics, image_index):
+    def describe_job(self, image, descriptor_name, descriptors_matrix, image_index):
         description = self.descriptor_provider.provide(image, descriptor_name)
         if description is None or np.all(description == 0):
             description = self.describe_image(image, descriptor_name)
-        characteristics[image_index] = description
+        descriptors_matrix[image_index] = description
         if image_index % 1000 == 0:
             logging.info('Processed until: %s' % image_index)
         if image_index % 100 == 0:
             descriptor_path = collections_from_descriptor(descriptor_name)
             descriptor_path.parent.mkdir(exist_ok=True, parents=True)
-            characteristics.dump(str(descriptor_path))
+            descriptors_matrix.dump(str(descriptor_path))
 
-    def describe_set(self, images, descriptor_name):
+    def describe_set(self, images, descriptor_name, descriptors_matrix):
         descriptor = self.descriptors[descriptor_name]
-        characteristics = np.zeros((len(images), *descriptor.shape))
+        if descriptors_matrix is None:
+            descriptors_matrix = np.zeros((len(images), *descriptor.shape))
+            indices = np.array(range(len(images)))
+        else:
+            axes = tuple([x for x in range(1, descriptors_matrix.ndim)])
+            zero_entries = np.all(descriptors_matrix == 0, axis=axes)
+            indices = zero_entries.nonzero()[0]
         with ft.ThreadPoolExecutor(max_workers=8) as executor:
             try:
-                for image_index, image in enumerate(images):
-                    executor.submit(self.describe_job, image, descriptor_name, characteristics, image_index)
+                for image_index in indices:
+                    image = images[image_index]
+                    executor.submit(self.describe_job, image, descriptor_name, descriptors_matrix, image_index)
             except Exception:
                 logging.exception('Not able to describe image %s' % image)
-        return characteristics
+        return descriptors_matrix
 
 
 class DescriptorProvider(metaclass=abc.ABCMeta):
