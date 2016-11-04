@@ -1,11 +1,12 @@
 import abc
 
 from skimage import exposure, img_as_float
-from skimage.color import rgb2lab, lab2lch, gray2rgb
+from skimage.color import gray2rgb, lab2lch
 from skimage.io import imread
 from scipy import ndimage as ndi
 
 from .helpers import *
+from .image_ops import *
 
 from ..filesystem.config_paths import *
 from ..shared import *
@@ -41,9 +42,7 @@ class Descriptor(metaclass=abc.ABCMeta):
         else:
             image_data = self._get_image(image)
             image_data = gray2rgb(image_data)
-            lab_data = rgb2lab(image_data)
-            lab_path.parent.mkdir(exist_ok=True, parents=True)
-            lab_data.dump(str(lab_path))
+            lab_data = rgb_to_lab(image_data)
             return lab_data
 
 
@@ -60,7 +59,7 @@ class GrayLevelHistogram(Descriptor):
         if image_data.ndim == 3:
             image_data = np.mean(image_data, 2)
         hist = np.histogram(image_data, range=(0, 256), bins=self.nbins)[0]
-        return hist / np.sum(hist)
+        return hist / hist.sum()
 
 
 class LABHistogram(Descriptor):
@@ -72,9 +71,7 @@ class LABHistogram(Descriptor):
         return self.nbins, self.nbins, self.nbins
 
     def compute(self, image):
-        image_data = self._get_image(image)
-        image_data = gray2rgb(image_data)
-        lab = rgb2lab(image_data)
+        lab = self._get_lab(image)
         h, w, d = lab.shape
         lab_ = img_as_float(lab.reshape((h * w, d)))
         lab_hist = np.histogramdd(lab_, bins=self.nbins)[0]
@@ -90,8 +87,7 @@ class ABHistogram(Descriptor):
         return self.nbins, self.nbins
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         h, w, d = lab.shape
         ab_ = lab[:, :, 1:3].reshape((h * w, d - 1))
         ab_hist = np.histogramdd(ab_, bins=self.nbins)[0]
@@ -107,9 +103,8 @@ class LCHHistogram(Descriptor):
         return self.nbins, self.nbins, self.nbins
 
     def compute(self, image):
-        image = gray2rgb(image)
-        h, w, d = image.shape
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
+        h, w, d = lab.shape
         lch = img_as_float(lab2lch(lab)).reshape(h * w, d)
         lch_hist = np.histogramdd(lch, bins=self.nbins)[0]
         return lch_hist / np.sum(lch_hist)
@@ -124,8 +119,7 @@ class CHHistogram(Descriptor):
         return self.nbins, self.nbins
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         lch = img_as_float(lab2lch(lab))
         h, w, d = lch.shape
         ch_ = lch[:, :, 1:3].reshape(h * w, 2)
@@ -142,8 +136,7 @@ class LightnessHistogram(Descriptor):
         return self.nbins,
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_hist = exposure.histogram(l_, nbins=self.nbins)[0]
         return l_hist / np.sum(l_hist)
@@ -159,10 +152,9 @@ class ChromaHistogram(Descriptor):
 
     def compute(self, image):
         lab = self._get_lab(image)
-        lch = lab2lch(lab)
-        c_ = lch[..., 1]
-        c_hist = np.histogram(c_, range=(0, 50), bins=self.nbins)[0]
-        return c_hist / np.sum(c_hist)
+        c_ = np.sqrt(lab[..., 1] ** 2 + lab[..., 2] ** 2)
+        c_hist = np.histogram(c_, range=(0, 50), bins=16)[0]
+        return c_hist / c_hist.sum()
 
 
 class HueHistogram(Descriptor):
@@ -174,8 +166,7 @@ class HueHistogram(Descriptor):
         return self.nbins,
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         lch = lab2lch(lab)
         h_ = img_as_float(lch[:, :, 2])
         h_hist = exposure.histogram(h_, nbins=self.nbins)[0]
@@ -204,8 +195,7 @@ class LightnessLayout(Descriptor):
         return 8, 8
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_layout = sample8x8(l_)
         l_layout -= np.min(l_layout)
@@ -218,8 +208,7 @@ class ChromaLayout(Descriptor):
         return 8, 8
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         lch = lab2lch(lab)
         c_ = img_as_float(lch[:, :, 1])
         c_layout = sample8x8(c_)
@@ -233,8 +222,7 @@ class HueLayout(Descriptor):
         return 8, 8
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         lch = lab2lch(lab)
         c_ = img_as_float(lch[:, :, 1])
         mask = c_ <= 1
@@ -252,8 +240,7 @@ class LightnessHighLayout(Descriptor):
         return 8, 8
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_blur, ss = compute_lightness_blur(l_, self.blur_factor)
 
@@ -273,8 +260,7 @@ class DetailsHistogram(Descriptor):
         return self.nbins, 3
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_blur, ss = compute_lightness_blur(l_, 0.1)
 
@@ -304,8 +290,7 @@ class DetailsLayout(Descriptor):
         return 8, 8, 3
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_blur, ss = compute_lightness_blur(l_, 0.1)
 
@@ -361,8 +346,7 @@ class GaborHistogram(Descriptor):
         return gb.sizes.size, gb.thetas.size, self.nbins
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
 
         histograms = np.zeros((gb.sizes.size, gb.thetas.size, self.nbins))
@@ -382,9 +366,7 @@ class GaborLayout(Descriptor):
         return gb.sizes.size, gb.thetas.size, 8, 8
 
     def compute(self, image):
-        image = gray2rgb(image)
-        # TODO save lab images if possible
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
 
         layouts = np.zeros((gb.sizes.size, gb.thetas.size, 8, 8))
@@ -406,8 +388,7 @@ class LightnessFourier(Descriptor):
         return 21, 21
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
         fourier = np.absolute(np.fft.fft2(l_))
         resized = np.resize(fourier, (21, 21))
@@ -420,8 +401,7 @@ class ChromaFourier(Descriptor):
         return 21, 21
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         lch = lab2lch(lab)
         l_ = img_as_float(lch[:, :, 1])
         fourier = np.absolute(np.fft.fft2(l_))
@@ -435,8 +415,7 @@ class HueFourier(Descriptor):
         return 21, 21
 
     def compute(self, image):
-        image = gray2rgb(image)
-        lab = rgb2lab(image)
+        lab = self._get_lab(image)
         lch = lab2lch(lab)
         l_ = img_as_float(lch[:, :, 2])
         fourier = np.absolute(np.fft.fft2(l_))
