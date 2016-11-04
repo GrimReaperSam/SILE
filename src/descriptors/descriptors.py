@@ -3,7 +3,9 @@ import abc
 from skimage import exposure, img_as_float
 from skimage.color import gray2rgb, lab2lch
 from skimage.io import imread
+
 from scipy import ndimage as ndi
+from scipy.io import loadmat
 
 from .helpers import *
 from .image_ops import *
@@ -38,7 +40,7 @@ class Descriptor(metaclass=abc.ABCMeta):
     def _get_lab(self, image):
         lab_path = lab_from_id(image)
         if lab_path.exists():
-            return np.load(str(lab_path))
+            return loadmat(str(lab_path))['data']
         else:
             image_data = self._get_image(image)
             image_data = gray2rgb(image_data)
