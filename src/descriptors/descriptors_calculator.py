@@ -26,9 +26,7 @@ class DescriptorsCalculator:
 
     def describe_image(self, image, descriptor_name):
         descriptor = self.descriptors[descriptor_name]
-        description = descriptor.compute(image)
-        self.descriptor_provider.save(image, descriptor_name, description)
-        return description
+        return descriptor.compute(image)
 
     def describe_job(self, image, descriptor_name, characteristics, image_index):
         description = self.descriptor_provider.provide(image, descriptor_name)
@@ -37,6 +35,10 @@ class DescriptorsCalculator:
         characteristics[image_index] = description
         if image_index % 1000 == 0:
             logging.info('Processed until: %s' % image_index)
+        if image_index % 100 == 0:
+            descriptor_path = collections_from_descriptor(descriptor_name)
+            descriptor_path.parent.mkdir(exist_ok=True, parents=True)
+            characteristics.dump(str(descriptor_path))
 
     def describe_set(self, images, descriptor_name):
         descriptor = self.descriptors[descriptor_name]
@@ -47,7 +49,6 @@ class DescriptorsCalculator:
                     executor.submit(self.describe_job, image, descriptor_name, characteristics, image_index)
             except Exception:
                 logging.exception('Not able to describe image %s' % image)
-        print(characteristics.shape)
         return characteristics
 
 
