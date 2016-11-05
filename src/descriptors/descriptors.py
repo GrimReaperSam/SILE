@@ -71,7 +71,8 @@ class GrayLevelHistogram(Descriptor):
         if image_data.ndim == 3:
             image_data = np.mean(image_data, 2)
         hist = np.histogram(image_data, range=(0, 256), bins=self.nbins)[0]
-        return hist / hist.sum()
+        hist_sum = hist.sum()
+        return hist / hist_sum if hist_sum != 0 else hist
 
 
 class LABHistogram(Descriptor):
@@ -87,7 +88,8 @@ class LABHistogram(Descriptor):
         h, w, d = lab.shape
         lab_ = img_as_float(lab.reshape((h * w, d)))
         lab_hist = np.histogramdd(lab_, bins=self.nbins)[0]
-        return lab_hist / np.sum(lab_hist)
+        lab_hist_sum = lab_hist.sum()
+        return lab_hist / lab_hist_sum if lab_hist_sum != 0 else lab_hist
 
 
 class ABHistogram(Descriptor):
@@ -103,7 +105,8 @@ class ABHistogram(Descriptor):
         h, w, d = lab.shape
         ab_ = lab[:, :, 1:3].reshape((h * w, d - 1))
         ab_hist = np.histogramdd(ab_, bins=self.nbins)[0]
-        return ab_hist / np.sum(ab_hist)
+        ab_hist_sum = ab_hist.sum()
+        return ab_hist / ab_hist_sum if ab_hist_sum != 0 else ab_hist
 
 
 class LCHHistogram(Descriptor):
@@ -119,7 +122,8 @@ class LCHHistogram(Descriptor):
         h, w, d = lab.shape
         lch = img_as_float(lab2lch(lab)).reshape(h * w, d)
         lch_hist = np.histogramdd(lch, bins=self.nbins)[0]
-        return lch_hist / np.sum(lch_hist)
+        lch_hist_sum = lch_hist.sum()
+        return lch_hist / lch_hist_sum if lch_hist_sum != 0 else lch_hist
 
 
 class CHHistogram(Descriptor):
@@ -136,7 +140,8 @@ class CHHistogram(Descriptor):
         h, w, d = lch.shape
         ch_ = lch[:, :, 1:3].reshape(h * w, 2)
         ch_hist = np.histogramdd(ch_, bins=self.nbins)[0]
-        return ch_hist / np.sum(ch_hist)
+        ch_hist_sum = ch_hist.sum()
+        return ch_hist / ch_hist_sum if ch_hist_sum != 0 else ch_hist
 
 
 class LightnessHistogram(Descriptor):
@@ -151,7 +156,8 @@ class LightnessHistogram(Descriptor):
         lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_hist = exposure.histogram(l_, nbins=self.nbins)[0]
-        return l_hist / np.sum(l_hist)
+        l_hist_sum = l_hist.sum()
+        return l_hist / l_hist_sum if l_hist_sum != 0 else l_hist
 
 
 class ChromaHistogram(Descriptor):
@@ -166,7 +172,8 @@ class ChromaHistogram(Descriptor):
         lab = self._get_lab(image)
         c_ = np.sqrt(lab[..., 1] ** 2 + lab[..., 2] ** 2)
         c_hist = np.histogram(c_, range=(0, 50), bins=16)[0]
-        return c_hist / c_hist.sum()
+        c_hist_sum = c_hist.sum()
+        return c_hist / c_hist_sum if c_hist_sum != 0 else c_hist
 
 
 class HueHistogram(Descriptor):
@@ -182,7 +189,7 @@ class HueHistogram(Descriptor):
         lch = lab2lch(lab)
         h_ = img_as_float(lch[:, :, 2])
         h_hist = exposure.histogram(h_, nbins=self.nbins)[0]
-        return h_hist / np.sum(h_hist)
+        return h_hist / np.sum(h_hist) if h_hist.sum() != 0 else h_hist
 
 
 class RGBHistogram(Descriptor):
@@ -198,7 +205,8 @@ class RGBHistogram(Descriptor):
         h, w, d = image.shape
         rgb = img_as_float(image.reshape((h * w, d)))
         rgb_hist = np.histogramdd(rgb, bins=self.nbins)[0]
-        return rgb_hist / np.sum(rgb_hist)
+        rgb_hist_sum = rgb_hist.sum()
+        return rgb_hist / rgb_hist_sum if rgb_hist_sum != 0 else rgb_hist
 
 
 class LightnessLayout(Descriptor):
