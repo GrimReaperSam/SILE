@@ -25,3 +25,15 @@ def rgb_to_lab(rgb_image):
     b = 200 * (f_xyz[1] - f_xyz[2]).reshape(w, h, 1)
 
     return np.concatenate([l, a, b], axis=2)
+
+
+def lab_to_lch(lab):
+    h, w, d = lab.shape
+
+    l_ = lab[..., 0].reshape(h, w, 1)
+    c_ = np.sqrt(lab[..., 1] ** 2 + lab[..., 2] ** 2).reshape(h, w, 1)
+    h_ = 180 / np.pi * np.arctan2(lab[..., 2], lab[..., 1]).reshape(h, w, 1)
+    neg = h_ < 0
+    h_[neg] += 360
+
+    return np.concatenate([l_, c_, h_], axis=2)

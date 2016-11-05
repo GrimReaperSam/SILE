@@ -76,8 +76,8 @@ class GrayLevelHistogram(Descriptor):
 
 
 class LABHistogram(Descriptor):
-    def __init__(self, nbins=DEFAULT_3D_HISTOGRAM_NBINS):
-        self.nbins = nbins
+    def __init__(self):
+        self.nbins = 8
 
     @property
     def shape(self):
@@ -86,8 +86,8 @@ class LABHistogram(Descriptor):
     def compute(self, image):
         lab = self._get_lab(image)
         h, w, d = lab.shape
-        lab_ = img_as_float(lab.reshape((h * w, d)))
-        lab_hist = np.histogramdd(lab_, bins=self.nbins)[0]
+        lab_ = lab.reshape(h * w, d)
+        lab_hist = np.histogramdd(lab_, range=[(0, 100), (-80, 80), (-80, 80)], bins=self.nbins)[0]
         lab_hist_sum = lab_hist.sum()
         return lab_hist / lab_hist_sum if lab_hist_sum != 0 else lab_hist
 
@@ -110,8 +110,8 @@ class ABHistogram(Descriptor):
 
 
 class LCHHistogram(Descriptor):
-    def __init__(self, nbins=DEFAULT_3D_HISTOGRAM_NBINS):
-        self.nbins = nbins
+    def __init__(self):
+        self.nbins = 8
 
     @property
     def shape(self):
@@ -120,8 +120,8 @@ class LCHHistogram(Descriptor):
     def compute(self, image):
         lab = self._get_lab(image)
         h, w, d = lab.shape
-        lch = img_as_float(lab2lch(lab)).reshape(h * w, d)
-        lch_hist = np.histogramdd(lch, bins=self.nbins)[0]
+        lch = lab_to_lch(lab).reshape(h * w, d)
+        lch_hist = np.histogramdd(lch, range=[(0, 100), (0, 80), (0, 360)], bins=self.nbins)[0]
         lch_hist_sum = lch_hist.sum()
         return lch_hist / lch_hist_sum if lch_hist_sum != 0 else lch_hist
 
@@ -210,7 +210,7 @@ class RGBHistogram(Descriptor):
     def compute(self, image):
         image = gray2rgb(image)
         h, w, d = image.shape
-        rgb = img_as_float(image.reshape((h * w, d)))
+        rgb = image.reshape(h * w, d)
         rgb_hist = np.histogramdd(rgb, bins=self.nbins)[0]
         rgb_hist_sum = rgb_hist.sum()
         return rgb_hist / rgb_hist_sum if rgb_hist_sum != 0 else rgb_hist
