@@ -52,6 +52,7 @@ class Descriptor(metaclass=abc.ABCMeta):
         lab_data = rgb_to_lab(image_data)
         if update:
             logging.info('Updating corrupt lab data for %s' % image)
+            lab_path.unlink()
             savemat(str(lab_path), mdict={'data': lab_data})
         return lab_data
 
