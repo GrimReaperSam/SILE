@@ -186,10 +186,17 @@ class HueHistogram(Descriptor):
 
     def compute(self, image):
         lab = self._get_lab(image)
-        lch = lab2lch(lab)
-        h_ = img_as_float(lch[:, :, 2])
-        h_hist = exposure.histogram(h_, nbins=self.nbins)[0]
-        return h_hist / np.sum(h_hist) if h_hist.sum() != 0 else h_hist
+        lab_c = np.sqrt(lab[..., 1] ** 2 + lab[..., 2] ** 2)
+        lab_h = 180 / np.pi * np.arctan2(lab[..., 2], lab[..., 1])
+        neg = lab_h < 0
+        lab_h[neg] += 360
+        mask = lab_c > 1
+        if mask.sum() > 16:
+            h_hist = np.histogram(lab_h, range=(0, 360), bins=16)[0]
+        else:
+            h_hist = np.zeros(16)
+        h_hist_sum = h_hist.sum()
+        return h_hist / h_hist_sum if h_hist_sum != 0 else h_hist
 
 
 class RGBHistogram(Descriptor):
