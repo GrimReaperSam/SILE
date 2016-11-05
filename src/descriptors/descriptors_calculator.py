@@ -34,11 +34,10 @@ class DescriptorsCalculator:
             description = self.describe_image(image, descriptor_name)
         descriptors_matrix[image_index] = description
         if image_index % 1000 == 0:
-            logging.info('Processed until: %s' % image_index)
-        if image_index % 100 == 0:
             descriptor_path = collections_from_descriptor(descriptor_name)
             descriptor_path.parent.mkdir(exist_ok=True, parents=True)
             descriptors_matrix.dump(str(descriptor_path))
+            logging.info('Processed until: %s, Saved descriptors matrix at %s' % (image_index, str(descriptor_path)))
 
     def describe_set(self, images, descriptor_name, descriptors_matrix):
         descriptor = self.descriptors[descriptor_name]

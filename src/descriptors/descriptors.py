@@ -50,7 +50,7 @@ class Descriptor(metaclass=abc.ABCMeta):
         image_data = self._get_image(image)
         image_data = gray2rgb(image_data)
         lab_data = rgb_to_lab(image_data)
-        # TODO ask for permissions to do that!
+        # TODO ask for permissions to do that! Email bin
         # if update:
         #     logging.info('Updating corrupt lab data for %s' % image)
         #     lab_path.unlink()
