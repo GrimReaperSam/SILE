@@ -208,9 +208,10 @@ class RGBHistogram(Descriptor):
         return self.nbins, self.nbins, self.nbins
 
     def compute(self, image):
-        image = gray2rgb(image)
-        h, w, d = image.shape
-        rgb = image.reshape(h * w, d)
+        image_data = self._get_image(image)
+        image_data = gray2rgb(image_data)
+        h, w, d = image_data.shape
+        rgb = image_data.reshape(h * w, d)
         rgb_hist = np.histogramdd(rgb, bins=self.nbins)[0]
         rgb_hist_sum = rgb_hist.sum()
         return rgb_hist / rgb_hist_sum if rgb_hist_sum != 0 else rgb_hist
