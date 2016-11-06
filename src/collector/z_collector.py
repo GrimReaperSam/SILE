@@ -79,7 +79,7 @@ class DescriptorData:
 
     def __repr__(self):
         result = 'Z*-values: %s\n' % self.descriptor
-        result += 'Delta Z*: %s' % self.delta_z
+        result += 'Delta Z*: %s\n' % self.delta_z
         return result
 
 
