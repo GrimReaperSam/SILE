@@ -417,35 +417,8 @@ class LightnessFourier(Descriptor):
 
     def compute(self, image):
         lab = self._get_lab(image)
-        l_ = img_as_float(lab[:, :, 0])
-        fourier = np.absolute(np.fft.fft2(l_))
-        resized = np.resize(fourier, (21, 21))
-        return resized / np.max(resized)
-
-
-class ChromaFourier(Descriptor):
-    @property
-    def shape(self):
-        return 21, 21
-
-    def compute(self, image):
-        lab = self._get_lab(image)
-        lch = lab2lch(lab)
-        l_ = img_as_float(lch[:, :, 1])
-        fourier = np.absolute(np.fft.fft2(l_))
-        resized = np.resize(fourier, (21, 21))
-        return resized / np.max(resized)
-
-
-class HueFourier(Descriptor):
-    @property
-    def shape(self):
-        return 21, 21
-
-    def compute(self, image):
-        lab = self._get_lab(image)
-        lch = lab2lch(lab)
-        l_ = img_as_float(lch[:, :, 2])
-        fourier = np.absolute(np.fft.fft2(l_))
-        resized = np.resize(fourier, (21, 21))
-        return resized / np.max(resized)
+        l_ = lab[..., 0]
+        a = np.fft.fft2(lab)
+        a = np.fft.fftshift(a)
+        a = np.abs(a)
+        return np.resize(a, (21, 21))

@@ -17,6 +17,7 @@ class DescriptorsCalculator:
             # 'chroma_layout': ChromaLayout(),
             # 'hue_layout': HueLayout(),
             # 'details_hist': DetailsHistogram(),
+            # 'frequency_hist' : LightnessFourier(),
             #'gabor_hist': GaborHistogram(),
             #'gabor_layout': GaborLayout(),
             #'lightness_fourier': LightnessFourier()
@@ -30,7 +31,7 @@ class DescriptorsCalculator:
 
     def describe_job(self, image, descriptor_name, descriptors_matrix, image_index):
         description = self.descriptor_provider.provide(image, descriptor_name)
-        if description is None or np.all(description == 0):
+        if description is None or np.all(np.isnan(description)):
             description = self.describe_image(image, descriptor_name)
         descriptors_matrix[image_index] = description
         if image_index % 1000 == 0:
@@ -42,11 +43,11 @@ class DescriptorsCalculator:
     def describe_set(self, images, descriptor_name, descriptors_matrix):
         descriptor = self.descriptors[descriptor_name]
         if descriptors_matrix is None:
-            descriptors_matrix = np.zeros((len(images), *descriptor.shape))
+            descriptors_matrix = np.full((len(images), *descriptor.shape), np.nan)
             indices = np.array(range(len(images)))
         else:
             axes = tuple([x for x in range(1, descriptors_matrix.ndim)])
-            zero_entries = np.all(descriptors_matrix == 0, axis=axes)
+            zero_entries = np.all(np.isnan(descriptors_matrix), axis=axes)
             indices = zero_entries.nonzero()[0]
         with ft.ThreadPoolExecutor(max_workers=8) as executor:
             try:
