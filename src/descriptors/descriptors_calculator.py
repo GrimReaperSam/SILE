@@ -7,12 +7,12 @@ from .descriptors import *
 class DescriptorsCalculator:
     def __init__(self, descriptor_provider):
         self.descriptors = {
-            'gray_hist': GrayLevelHistogram(),
-            'chroma_hist': ChromaHistogram(),
-            'hue_angle_hist': HueHistogram(),
+            # 'gray_hist': GrayLevelHistogram(),
+            # 'chroma_hist': ChromaHistogram(),
+            # 'hue_angle_hist': HueHistogram(),
             'rgb_hist': RGBHistogram(),
-            'lab_hist': LABHistogram(),
-            'lch_hist': LCHHistogram(),
+            # 'lab_hist': LABHistogram(),
+            # 'lch_hist': LCHHistogram(),
             # 'lightness_layout': LightnessLayout(),
             # 'chroma_layout': ChromaLayout(),
             # 'hue_layout': HueLayout(),
@@ -30,22 +30,27 @@ class DescriptorsCalculator:
         return descriptor.compute(image)
 
     def describe_job(self, image, descriptor_name, descriptors_matrix, image_index):
-        description = self.descriptor_provider.provide(image, descriptor_name)
-        if description is None or np.all(np.isnan(description)):
-            description = self.describe_image(image, descriptor_name)
-        descriptors_matrix[image_index] = description
-        if image_index % 1000 == 0:
-            descriptor_path = collections_from_descriptor(descriptor_name)
-            descriptor_path.parent.mkdir(exist_ok=True, parents=True)
-            descriptors_matrix.dump(str(descriptor_path))
-            logging.info('Processed until: %s, Saved descriptors matrix at %s' % (image_index, str(descriptor_path)))
+        try:
+            description = self.descriptor_provider.provide(image, descriptor_name)
+            if description is None or np.all(np.isnan(description)):
+                description = self.describe_image(image, descriptor_name)
+            descriptors_matrix[image_index] = description
+            logging.info('Processed image: %s' % image_index)
+        except Exception:
+            logging.info('Image %s could not be processed.' % image_index)
+            descriptors_matrix.flush()
 
-    def describe_set(self, images, descriptor_name, descriptors_matrix):
+    def describe_set(self, images, descriptor_name):
         descriptor = self.descriptors[descriptor_name]
-        if descriptors_matrix is None:
-            descriptors_matrix = np.full((len(images), *descriptor.shape), np.nan)
+        descriptor_path = collections_from_descriptor(descriptor_name)
+        if not descriptor_path.exists():
+            descriptor_path.parent.mkdir(exist_ok=True, parents=True)
+            descriptors_matrix = np.memmap(str(descriptor_path), dtype='float32', mode='w+', shape=(len(images), *descriptor.shape))
+            descriptors_matrix.fill(np.nan)
             indices = np.array(range(len(images)))
         else:
+            descriptors_matrix = np.memmap(str(descriptor_path), dtype='float32', mode='r+',
+                                           shape=(len(images), *descriptor.shape))
             axes = tuple([x for x in range(1, descriptors_matrix.ndim)])
             zero_entries = np.all(np.isnan(descriptors_matrix), axis=axes)
             indices = zero_entries.nonzero()[0]
@@ -56,6 +61,7 @@ class DescriptorsCalculator:
                     executor.submit(self.describe_job, image, descriptor_name, descriptors_matrix, image_index)
             except Exception:
                 logging.exception('Not able to describe image %s' % image)
+        descriptors_matrix.flush()
         return descriptors_matrix
 
 
