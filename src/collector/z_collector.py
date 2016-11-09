@@ -72,9 +72,7 @@ class DescriptorData:
         self.q9 = np.percentile(descriptions[positive_indices], [10, 20, 30, 40, 50, 60, 70, 80, 90], axis=0)
 
     def __repr__(self):
-        result = 'Z*-values: %s\n' % self.descriptor
-        result += 'Delta Z*: %s\n' % self.delta_z
-        return result
+        return 'Delta Z*: %s\n' % self.delta_z
 
 
 class ImageProvider(metaclass=abc.ABCMeta):
