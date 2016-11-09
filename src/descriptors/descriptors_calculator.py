@@ -1,4 +1,3 @@
-import logging
 import concurrent.futures as ft
 
 from .descriptors import *
@@ -14,13 +13,12 @@ class DescriptorsCalculator:
             'lab_hist': LABHistogram(),
             'lch_hist': LCHHistogram(),
             'lightness_layout': LightnessLayout(),
-            # 'chroma_layout': ChromaLayout(),
-            # 'hue_layout': HueLayout(),
-            # 'details_hist': DetailsHistogram(),
+            'chroma_layout': ChromaLayout(),
+            'hue_layout': HueLayout(),
+            'details_hist': DetailsHistogram(),
             # 'frequency_hist' : LightnessFourier(),
             #'gabor_hist': GaborHistogram(),
             #'gabor_layout': GaborLayout(),
-            #'lightness_fourier': LightnessFourier()
             #'lbp_hist': LinearBinaryPatternHistogram()
         }
         self.descriptor_provider = descriptor_provider

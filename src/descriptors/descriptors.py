@@ -254,8 +254,7 @@ class HueLayout(Descriptor):
         neg = lab_h < 0
         lab_h[neg] += 360
         mask = lab_c > 1
-        h_layout = hue_sample8x8(lab_h, mask)
-        return h_layout
+        return hue_sample8x8(lab_h, mask)
 
 
 class LightnessHighLayout(Descriptor):
@@ -291,22 +290,28 @@ class DetailsHistogram(Descriptor):
         l_ = img_as_float(lab[:, :, 0])
         l_blur, ss = compute_lightness_blur(l_, 0.1)
 
-        l_high = np.abs(l_[ss:-ss, ss:-ss] - l_blur[ss:-ss, ss:-ss])
-        lab_l_crop = l_[ss:-ss, ss:-ss]
+        l_high = np.abs(l_[ss-1:-ss, ss-1:-ss] - l_blur[ss-1:-ss, ss-1:-ss])
+        lab_l_crop = l_[ss-1:-ss, ss-1:-ss]
 
         details_hist = np.zeros((16, 3))
 
         positives = lab_l_crop <= 100 / 3
-        if np.count_nonzero(positives) > lab_l_crop.size / 100:
-            details_hist[:, 0] = exposure.histogram(l_high[positives], nbins=self.nbins)[0]
+        if positives.sum() > lab_l_crop.size / 100:
+            details_hist[:, 0] = np.histogram(l_high[positives], range=(0, 40), bins=self.nbins)[0]
+            if details_hist[:, 0].sum() > 0:
+                details_hist[:, 0] /= details_hist[:, 0].sum()
 
-        positives = np.logical_and(lab_l_crop > 100 / 3, lab_l_crop <= 200 / 3)
-        if np.count_nonzero(positives) > lab_l_crop.size / 100:
-            details_hist[:, 1] = exposure.histogram(l_high[positives], nbins=self.nbins)[0]
+        positives = (lab_l_crop > 100 / 3) & (lab_l_crop <= 200 / 3)
+        if positives.sum() > lab_l_crop.size / 100:
+            details_hist[:, 1] = np.histogram(l_high[positives], range=(0, 40), bins=self.nbins)[0]
+            if details_hist[:, 1].sum() > 0:
+                details_hist[:, 1] /= details_hist[:, 1].sum()
 
         positives = lab_l_crop > 200 / 3
-        if np.count_nonzero(positives) > lab_l_crop.size / 100:
-            details_hist[:, 2] = exposure.histogram(l_high[positives], nbins=self.nbins)[0]
+        if positives.sum() > lab_l_crop.size / 100:
+            details_hist[:, 2] = np.histogram(l_high[positives], range=(0, 40), bins=self.nbins)[0]
+            if details_hist[:, 2].sum() > 0:
+                details_hist[:, 2] /= details_hist[:, 2].sum()
 
         return details_hist
 
