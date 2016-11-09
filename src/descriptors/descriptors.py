@@ -236,11 +236,10 @@ class ChromaLayout(Descriptor):
 
     def compute(self, image):
         lab = self._get_lab(image)
-        lch = lab2lch(lab)
-        c_ = img_as_float(lch[:, :, 1])
+        c_ = np.sqrt(lab[..., 1] ** 2 + lab[..., 2] ** 2)
         c_layout = sample8x8(c_)
-        c_layout -= np.min(c_layout)
-        return c_layout / np.max(c_layout)
+        c_layout -= c_layout.min()
+        return c_layout / c_layout.max()
 
 
 class HueLayout(Descriptor):
@@ -250,11 +249,12 @@ class HueLayout(Descriptor):
 
     def compute(self, image):
         lab = self._get_lab(image)
-        lch = lab2lch(lab)
-        c_ = img_as_float(lch[:, :, 1])
-        mask = c_ <= 1
-        h_ = img_as_float(lch[:, :, 2])
-        h_layout = hue_sample8x8(h_, mask)
+        lab_c = np.sqrt(lab[..., 1] ** 2 + lab[..., 2] ** 2)
+        lab_h = 180 / np.pi * np.arctan2(lab[..., 2], lab[..., 1])
+        neg = lab_h < 0
+        lab_h[neg] += 360
+        mask = lab_c > 1
+        h_layout = hue_sample8x8(lab_h, mask)
         return h_layout
 
 

@@ -25,18 +25,19 @@ def hue_sample8x8(image, mask):
     rows = np.linspace(1, h + 1, n + 1, dtype=np.int16)
     columns = np.linspace(1, w + 1, n + 1, dtype=np.int16)
 
-    image[mask] = -1
+    image = image / 180 * np.pi
+    image[~mask] = -1
 
     for i in range(n):
         for j in range(n):
             patch = image[rows[i]:rows[i+1], columns[j]:columns[j+1]]
             positive = patch[patch >= 0]
-            x = np.sum(np.cos(positive))
-            y = np.sum(np.sin(positive))
-            alpha = np.arctan2(y, x)
+            x = np.cos(positive).sum()
+            y = np.sin(positive).sum()
+            alpha = 180 / np.pi * np.arctan2(y, x)
             if alpha < 0:
-                alpha += 2 * np.pi
-                output[i, j] = alpha
+                alpha += 360
+            output[i, j] = alpha
 
     return output
 
