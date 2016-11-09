@@ -13,7 +13,7 @@ class DescriptorsCalculator:
             'rgb_hist': RGBHistogram(),
             'lab_hist': LABHistogram(),
             'lch_hist': LCHHistogram(),
-            # 'lightness_layout': LightnessLayout(),
+            'lightness_layout': LightnessLayout(),
             # 'chroma_layout': ChromaLayout(),
             # 'hue_layout': HueLayout(),
             # 'details_hist': DetailsHistogram(),

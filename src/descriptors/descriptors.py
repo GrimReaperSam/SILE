@@ -224,10 +224,9 @@ class LightnessLayout(Descriptor):
 
     def compute(self, image):
         lab = self._get_lab(image)
-        l_ = img_as_float(lab[:, :, 0])
-        l_layout = sample8x8(l_)
-        l_layout -= np.min(l_layout)
-        return l_layout / np.max(l_layout)
+        l_layout = sample8x8(lab[..., 0])
+        l_layout -= l_layout.min()
+        return l_layout / l_layout.max()
 
 
 class ChromaLayout(Descriptor):
