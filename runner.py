@@ -8,5 +8,5 @@ a = ZCollector(MyDescriptorProvider(), MyZProvider())
 hist = a.collect('night')
 print(hist)
 
-b = ImageComparator(a)
-b.compare(12, 'night')
+# b = ImageComparator(a)
+# b.compare(12, 'night')
