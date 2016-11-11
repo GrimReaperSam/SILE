@@ -10,6 +10,7 @@ from scipy.io import loadmat, savemat
 
 from .helpers import *
 from .image_ops import *
+from .resizer import imresize
 
 from ..filesystem.config_paths import *
 from ..shared import *
@@ -422,7 +423,6 @@ class LightnessFourier(Descriptor):
     def compute(self, image):
         lab = self._get_lab(image)
         l_ = lab[..., 0]
-        a = np.fft.fft2(lab)
-        a = np.fft.fftshift(a)
-        a = np.abs(a)
-        return np.resize(a, (21, 21))
+        fourier = np.fft.fft2(l_)
+        shifted = np.fft.fftshift(fourier)
+        return imresize(np.abs(shifted), 21, 21)
