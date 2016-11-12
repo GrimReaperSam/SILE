@@ -2,15 +2,15 @@ import abc
 import logging
 
 from skimage import exposure, img_as_float
-from skimage.color import gray2rgb, lab2lch
+from skimage.color import gray2rgb
 from skimage.io import imread
 
 from scipy import ndimage as ndi
 from scipy.io import loadmat, savemat
 
-from .helpers import *
-from .image_ops import *
-from .resizer import imresize
+from .descriptors_helpers import *
+from .color_helpers import *
+from .matlab import imresize
 
 from ..filesystem.config_paths import *
 from ..shared import *
@@ -137,7 +137,7 @@ class CHHistogram(Descriptor):
 
     def compute(self, image):
         lab = self._get_lab(image)
-        lch = img_as_float(lab2lch(lab))
+        lch = img_as_float(lab_to_lch(lab))
         h, w, d = lch.shape
         ch_ = lch[:, :, 1:3].reshape(h * w, 2)
         ch_hist = np.histogramdd(ch_, bins=self.nbins)[0]
