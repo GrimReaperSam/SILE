@@ -17,6 +17,6 @@ b = ImageComparator(a)
 parent_path = Path('/data/lahoud/DB/examples')
 parent_path.mkdir(exist_ok=True, parents=True)
 
-for i in range(12):
+for i in range(1, 20):
     result = b.compare(i, 'night', 2)
     imsave(str(parent_path / 'result-%s.jpg' % i), result)

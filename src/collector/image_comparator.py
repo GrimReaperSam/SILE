@@ -27,14 +27,14 @@ class ImageComparator:
             less_than]
         delta[~less_than] = np.maximum(np.zeros(descriptor.shape), image_description - description_data.quantiles[0])[
             ~less_than]
-        return delta
+        return delta, image_description
 
     def enhance_image(self, image, key, description_data, s):
         delta, image_description = self._compare_descriptor(image, key, description_data)
         # Delta is positive so we need the highest difference to see if it's worth checking this descriptor
         if delta.max() > DELTA_THRESHOLD:
             z_delta = description_data.descriptor * delta
-            result = transfer(image, z_delta, s)
+            return transfer(image, z_delta, s)
         return None
 
 
