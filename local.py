@@ -66,11 +66,13 @@
 # print(hist)
 
 
-from skimage.io import imread
-from src.descriptors.descriptors import ChromaHistogram
+from pathlib import Path
+from src.descriptors.descriptors import *
+import matplotlib.pyplot as plt
 import numpy as np
 
-glh = ChromaHistogram()
-image = imread('DB/59898.jpg')
+glh = LightnessFourier()
+image = Path('DB/imgs/1.jpg')
 np.set_printoptions(suppress=True)
-print(glh.compute(image))
+plt.imshow(glh.compute(image))
+plt.show()

@@ -27,27 +27,30 @@ class Descriptor(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def compute(self, image):
         """
-        :param image: GrayLevel or RGB image matrix
+        :param image: Either Path or an image ID in the DB
         :return: The descriptor for this image
         """
 
     def _get_image(self, image):
+        # Check if image is of type Path
+        image_path = image if isinstance(image, Path) else rgb_from_id(image)
         try:
-            image_data = imread(rgb_from_id(image))
+            image_data = imread(image_path)
         except Exception:
-            missing_data_image = ndi.imread(rgb_from_id(image))
+            missing_data_image = ndi.imread(image_path)
             image_data = np.array(missing_data_image.item())
         return image_data
 
     def _get_lab(self, image):
-        lab_path = lab_from_id(image)
-        update = False
-        if lab_path.exists():
-            try:
-                return loadmat(str(lab_path))['data']
-            except Exception:
-                logging.info('Could not load lab data for %s' % image)
-                update = True
+        if not isinstance(image, Path):
+            lab_path = lab_from_id(image)
+            # update = False
+            if lab_path.exists():
+                try:
+                    return loadmat(str(lab_path))['data']
+                except Exception:
+                    logging.info('Could not load lab data for %s' % image)
+                    # update = True
         image_data = self._get_image(image)
         image_data = gray2rgb(image_data)
         lab_data = rgb_to_lab(image_data)
