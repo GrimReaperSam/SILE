@@ -59,7 +59,6 @@ class DescriptorsCalculator:
                     executor.submit(self.describe_job, image, descriptor_name, descriptors_matrix, image_index)
             except Exception:
                 logging.exception('Not able to describe image %s' % image)
-        descriptors_matrix.flush()
         return descriptors_matrix
 
 
