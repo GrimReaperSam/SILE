@@ -33,6 +33,8 @@ class Descriptor(metaclass=abc.ABCMeta):
 
     def _get_image(self, image):
         # Check if image is of type Path
+        if isinstance(image, np.ndarray):
+            return image
         image_path = image if isinstance(image, Path) else rgb_from_id(image)
         try:
             image_data = imread(image_path)
@@ -42,24 +44,17 @@ class Descriptor(metaclass=abc.ABCMeta):
         return image_data
 
     def _get_lab(self, image):
+        if isinstance(image, np.ndarray):
+            image_data = gray2rgb(image)
+            return rgb_to_lab(image_data)
         if not isinstance(image, Path):
             lab_path = lab_from_id(image)
-            # update = False
             if lab_path.exists():
                 try:
                     return loadmat(str(lab_path))['data']
                 except Exception:
                     logging.info('Could not load lab data for %s' % image)
-                    # update = True
-        image_data = self._get_image(image)
-        image_data = gray2rgb(image_data)
-        lab_data = rgb_to_lab(image_data)
-        # TODO ask for permissions to do that! Email bin
-        # if update:
-        #     logging.info('Updating corrupt lab data for %s' % image)
-        #     lab_path.unlink()
-        #     savemat(str(lab_path), mdict={'data': lab_data})
-        return lab_data
+        return rgb_to_lab(gray2rgb(self._get_image(image)))
 
 
 class GrayLevelHistogram(Descriptor):
