@@ -39,7 +39,7 @@ class ImageComparator:
 
 
 def transfer(image, z_delta, s):
-    transfer_function = interp1d(*make_transfer(z_delta, s), fill_value='extrapolate')
+    transfer_function = interp1d(*make_transfer(s, z_delta), fill_value='extrapolate')
     return transfer_function(image / 255).astype(np.uint8)
 
 
