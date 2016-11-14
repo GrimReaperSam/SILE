@@ -437,7 +437,7 @@ DESCRIPTORS = {
     'chroma_layout': ChromaLayout(),
     'hue_layout': HueLayout(),
     'details_hist': DetailsHistogram(),
-    'frequency_hist' : LightnessFourier(),
+    'frequency_hist': LightnessFourier(),
     #'gabor_hist': GaborHistogram(),
     #'gabor_layout': GaborLayout(),
     #'lbp_hist': LinearBinaryPatternHistogram()

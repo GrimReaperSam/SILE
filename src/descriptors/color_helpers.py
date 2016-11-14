@@ -27,6 +27,49 @@ def rgb_to_lab(rgb_image):
     return np.concatenate([l, a, b], axis=2)
 
 
+def lab_to_rgb(lab):
+    h, w, d = lab.shape
+    lab = lab.reshape(h * w, d)
+
+    l = lab[..., 0]
+    a = lab[..., 1]
+    b = lab[..., 2]
+
+    # Thresholds
+    threshold_y = 0.008856
+    threshold_xz = 0.206893
+
+    # Compute Y
+    f_y = ((l + 16) / 116) ** 3
+    y_greater = f_y > threshold_y
+    f_y = (~y_greater) * (l / 903.3) + y_greater * f_y
+    y = f_y
+
+    # Alter f_y slightly for further calculations
+    f_y = y_greater * (f_y ** (1 / 3)) + (~y_greater) * (7.787 * f_y + 16 / 116)
+    # Compute X
+    f_x = a / 500 + f_y
+    x_greater = f_x > threshold_xz
+    x = (x_greater * (f_x ** 3) + (~x_greater) * ((f_x - 16 / 116) / 7.787))
+    # Compute Z
+    f_z = f_y - b / 200
+    z_greater = f_z > threshold_xz
+    z = (z_greater * (f_z ** 3) + (~z_greater) * ((f_z - 16 / 116) / 7.787))
+
+    # Normalizing for D65 white point
+    x *= 0.950456
+    z *= 1.088754
+
+    # XYZ to RGB
+    xyz_transformation_matrix = [[3.240479, -1.537150, -0.498535],
+                                 [-0.969256, 1.875992, 0.041556],
+                                 [0.055648, -0.204043, 1.057311]]
+
+    xyz = np.vstack([x, y, z])
+    rgb = np.maximum(np.minimum(np.dot(xyz_transformation_matrix, xyz), 1), 0) * 255
+    return rgb.T.reshape(h, w, d).astype(np.uint8)
+
+
 def lab_to_lch(lab):
     h, w, d = lab.shape
 
@@ -37,3 +80,10 @@ def lab_to_lch(lab):
     h_[neg] += 360
 
     return np.concatenate([l_, c_, h_], axis=2)
+
+
+def lch_to_lab(lch):
+    lab = np.asarray(lch)
+    c, h = lch[..., 1], lch[..., 2] * np.pi / 180
+    lab[..., 1], lab[..., 2] = c * np.cos(h), c * np.sin(h)
+    return lab
