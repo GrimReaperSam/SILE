@@ -15,7 +15,7 @@ class ImageComparator:
             description_data = z_collection.descriptors[key]
             if description_data.delta_z > Z_VALUE_THRESHOLD:
                 return self.enhance_image(image, key, description_data, s)
-        return None
+        return image
 
     def _compare_descriptor(self, image, key, description_data):
         descriptor = description_data.descriptor
