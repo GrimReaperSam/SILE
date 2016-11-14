@@ -35,7 +35,7 @@ class ImageComparator:
         if delta.max() > DELTA_THRESHOLD:
             z_delta = description_data.descriptor * delta
             return transfer(image, z_delta, s)
-        return None
+        return image
 
 
 def transfer(image, z_delta, s):
