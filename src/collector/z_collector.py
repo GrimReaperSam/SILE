@@ -6,8 +6,8 @@ import numpy as np
 from .ranking import ranksum, delta_z
 
 from ..descriptors.descriptors_calculator import DescriptorsCalculator
+from ..descriptors.descriptors import DESCRIPTORS
 from ..filesystem.flicker_reader import FlickerDB
-from ..filesystem.config_paths import collections_from_descriptor
 
 
 class ZCollector:
@@ -24,10 +24,10 @@ class ZCollector:
         # Check if need to compute using all the descriptors
         if z_collection is None or z_collection.positive_count != len(positives) or z_collection.negative_count != len(negatives):
             z_collection = ZCollection(keyword)
-            keys = self.descriptor_calculator.descriptors.keys()
+            keys = DESCRIPTORS.keys()
         # Or maybe just a subset of descriptors because the others were computed already
         else:
-            keys = [key for key in self.descriptor_calculator.descriptors.keys() if key not in z_collection.descriptors.keys()]
+            keys = [key for key in DESCRIPTORS.keys() if key not in z_collection.descriptors.keys()]
 
         # If no descriptors needed, skip the calculation
         if len(keys) != 0:
