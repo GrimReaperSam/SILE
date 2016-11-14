@@ -10,10 +10,9 @@ from src.collector import *
 logging.getLogger().setLevel(logging.INFO)
 
 a = ZCollector(MyDescriptorProvider(), MyZProvider())
-hist = a.collect('night')
-print(hist)
+keyword_descriptors = a.collect('night')
 
-b = ImageComparator(a)
+b = ImageComparator(keyword_descriptors)
 
 parent_path = Path('/data/lahoud/DB/examples')
 parent_path.mkdir(exist_ok=True, parents=True)
@@ -21,5 +20,5 @@ parent_path.mkdir(exist_ok=True, parents=True)
 for i in range(1, 20):
     image = imread(rgb_from_id(i))
     imsave(str(parent_path / ('image-%s.jpg' % i)), image)
-    result = b.compare(image, 'snow', 2)
+    result = b.compare(image, 2)
     imsave(str(parent_path / ('result-%s.jpg' % i)), result)

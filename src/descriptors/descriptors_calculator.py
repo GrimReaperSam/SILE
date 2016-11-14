@@ -5,33 +5,13 @@ from .descriptors import *
 
 class DescriptorsCalculator:
     def __init__(self, descriptor_provider):
-        self.descriptors = {
-            'gray_hist': GrayLevelHistogram(),
-            'chroma_hist': ChromaHistogram(),
-            'hue_angle_hist': HueHistogram(),
-            'rgb_hist': RGBHistogram(),
-            'lab_hist': LABHistogram(),
-            'lch_hist': LCHHistogram(),
-            'lightness_layout': LightnessLayout(),
-            'chroma_layout': ChromaLayout(),
-            'hue_layout': HueLayout(),
-            'details_hist': DetailsHistogram(),
-            'frequency_hist' : LightnessFourier(),
-            #'gabor_hist': GaborHistogram(),
-            #'gabor_layout': GaborLayout(),
-            #'lbp_hist': LinearBinaryPatternHistogram()
-        }
         self.descriptor_provider = descriptor_provider
-
-    def describe_image(self, image, descriptor_name):
-        descriptor = self.descriptors[descriptor_name]
-        return descriptor.compute(image)
 
     def describe_job(self, image, descriptor_name, descriptors_matrix, image_index):
         try:
             description = self.descriptor_provider.provide(image, descriptor_name)
             if description is None or np.all(np.isnan(description)):
-                description = self.describe_image(image, descriptor_name)
+                description = DESCRIPTORS[descriptor_name].compute(image)
             descriptors_matrix[image_index] = description
             logging.info('Processed image: %s' % image_index)
         except Exception:
@@ -39,7 +19,7 @@ class DescriptorsCalculator:
             descriptors_matrix.flush()
 
     def describe_set(self, images, descriptor_name):
-        descriptor = self.descriptors[descriptor_name]
+        descriptor = DESCRIPTORS[descriptor_name]
         descriptor_path = collections_from_descriptor(descriptor_name)
         if not descriptor_path.exists():
             descriptor_path.parent.mkdir(exist_ok=True, parents=True)

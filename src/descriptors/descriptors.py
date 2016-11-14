@@ -424,3 +424,21 @@ class LightnessFourier(Descriptor):
         fourier = np.fft.fft2(l_)
         shifted = np.fft.fftshift(fourier)
         return imresize(np.abs(shifted), 21, 21)
+
+
+DESCRIPTORS = {
+    'gray_hist': GrayLevelHistogram(),
+    'chroma_hist': ChromaHistogram(),
+    'hue_angle_hist': HueHistogram(),
+    'rgb_hist': RGBHistogram(),
+    'lab_hist': LABHistogram(),
+    'lch_hist': LCHHistogram(),
+    'lightness_layout': LightnessLayout(),
+    'chroma_layout': ChromaLayout(),
+    'hue_layout': HueLayout(),
+    'details_hist': DetailsHistogram(),
+    'frequency_hist' : LightnessFourier(),
+    #'gabor_hist': GaborHistogram(),
+    #'gabor_layout': GaborLayout(),
+    #'lbp_hist': LinearBinaryPatternHistogram()
+}
