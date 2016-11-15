@@ -1,5 +1,3 @@
-import numpy as np
-
 from scipy.interpolate import interp1d
 
 from ..descriptors.descriptors import *
@@ -40,17 +38,34 @@ def compare_descriptor(image, key, description_data):
 
 
 def transfer(image, key, z_delta, s):
-    transfer_function = interp1d(*make_transfer(key, s, z_delta), fill_value='extrapolate')
     if key == 'gray_hist':
+        transfer_function = interp1d(*make_transfer(key, s, z_delta), fill_value='extrapolate')
         return transfer_function(image / 255).astype(np.uint8)
     elif key == 'chroma_hist':
+        transfer_function = interp1d(*make_transfer(key, s, z_delta), fill_value='extrapolate')
         lch = lab_to_lch(rgb_to_lab(image))
         lch[..., 1] = transfer_function(lch[..., 1] / 80)
         return lab_to_rgb(lch_to_lab(lch))
     elif key == 'hue_angle_hist':
+        transfer_function = interp1d(*make_transfer(key, s, z_delta), fill_value='extrapolate')
         lch = lab_to_lch(rgb_to_lab(image))
         lch[..., 2] = transfer_function(lch[..., 2] / 360)
         return lab_to_rgb(lch_to_lab(lch))
+    elif key == 'rgb_hist':
+        rgb = np.empty(image.shape)
+        # Red
+        zr = z_delta.sum(axis=(1, 2))
+        f = interp1d(*make_transfer(key, s, zr), fill_value='extrapolate')
+        rgb[..., 0] = f(image[..., 0] / 255)
+        # Green
+        zg = z_delta.sum(axis=(0, 2))
+        f = interp1d(*make_transfer(key, s, zg), fill_value='extrapolate')
+        rgb[..., 1] = f(image[..., 1] / 255)
+        # Blue
+        zb = z_delta.sum(axis=(0, 1))
+        f = interp1d(*make_transfer(key, s, zb), fill_value='extrapolate')
+        rgb[..., 2] = f(image[..., 2] / 255)
+        return rgb.astype(np.uint8)
 
 
 def make_transfer(key, s, zd):
@@ -65,6 +80,9 @@ def make_transfer(key, s, zd):
     elif key == 'hue_angle_hist':
         bin_centers = np.linspace(1 / 32, 31 / 32, 16)
         x2 = np.linspace(0, 1, 360)
+    elif key == 'rgb_hist':
+        bin_centers = np.linspace(1 / 16, 15 / 16, 8)
+        x2 = np.linspace(0, 1, 255)
 
     f_derivative = interp1d(bin_centers, s * zd, fill_value='extrapolate')
 
@@ -85,3 +103,5 @@ def make_transfer(key, s, zd):
         return x2, mmap * 80
     elif key == 'hue_angle_hist':
         return x2, mmap * 360
+    elif key == 'rgb_hist':
+        return x2, mmap * 255

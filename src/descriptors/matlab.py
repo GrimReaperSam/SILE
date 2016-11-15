@@ -2,12 +2,12 @@ import numpy as np
 
 
 def reduce_along_dim(img, dim, weights, indices):
-    '''
+    """
     Perform bilinear interpolation given along the image dimension dim
     -weights are the kernel weights
-    -indicies are the crossponding indicies location
+    -indices are the corresponding indices location
     return img resize along dimension dim
-    '''
+    """
     other_dim = abs(dim - 1)
     if other_dim == 0:  # resizing image width
         weights = np.tile(weights[np.newaxis, :, :, np.newaxis], (img.shape[other_dim], 1, 1, 3))
@@ -22,12 +22,12 @@ def reduce_along_dim(img, dim, weights, indices):
 
 
 def cubic_spline(x):
-    '''
+    """
     Compute the kernel weights
     See Keys, "Cubic Convolution Interpolation for Digital Image
     Processing," IEEE Transactions on Acoustics, Speech, and Signal
     Processing, Vol. ASSP-29, No. 6, December 1981, p. 1155.
-    '''
+    """
     absx = np.abs(x)
     absx2 = absx ** 2
     absx3 = absx ** 3
@@ -37,7 +37,7 @@ def cubic_spline(x):
 
 
 def contribution(in_dim_len, out_dim_len, scale):
-    '''
+    """
     Compute the weights and indices of the pixels involved in the cubic interpolation along each dimension.
 
     output:
@@ -45,7 +45,7 @@ def contribution(in_dim_len, out_dim_len, scale):
     indices a list of size 2(one set of pixel indices for each dimension) Each item is of size OUT_DIM_LEN*kernel_width
 
     note that if the entire column weights is zero, it gets deleted since those pixels don't contribute to anything
-    '''
+    """
     kernel_width = 4
     if scale < 1:
         kernel_width = 4 / scale
@@ -91,10 +91,10 @@ def contribution(in_dim_len, out_dim_len, scale):
 
 
 def imresize(img, cropped_width, cropped_height):
-    '''
+    """
     Function implementing matlab's imresize functionality default behaviour
     Cubic spline interpolation with Antialiasing correction when scaling down the image.
-    '''
+    """
     width_scale = float(cropped_width) / img.shape[1]
     height_scale = float(cropped_height) / img.shape[0]
 

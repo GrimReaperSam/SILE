@@ -1,10 +1,9 @@
 import numpy as np
 import pickle
 
-from ..collector.z_collector import ZProvider, ImageProvider
+from ..collector.z_collector import ZProvider
 from ..descriptors.descriptors_calculator import DescriptorProvider
 
-from .flicker_reader import FlickerDB
 from .config_paths import z_value_from_keyword, descriptor_from_id
 
 

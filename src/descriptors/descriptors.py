@@ -6,7 +6,7 @@ from skimage.color import gray2rgb
 from skimage.io import imread
 
 from scipy import ndimage as ndi
-from scipy.io import loadmat, savemat
+from scipy.io import loadmat
 
 from .descriptors_helpers import *
 from .color_helpers import *
