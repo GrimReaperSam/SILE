@@ -9,11 +9,14 @@ class ImageComparator:
         self.z_collection = z_collection
 
     def compare(self, image, s):
-        for key in ['gray_hist']:
+        images = {}
+        for key in ['gray_hist', 'chroma_hist', 'hue_angle_hist', 'rgb_hist']:
             description_data = self.z_collection.descriptors[key]
             if description_data.delta_z > Z_VALUE_THRESHOLD:
-                return enhance_image(image, key, description_data, s)
-        return image
+                images[key] = enhance_image(image, key, description_data, s)
+            else:
+                images[key] = image
+        return images
 
 
 def enhance_image(image, key, description_data, s):

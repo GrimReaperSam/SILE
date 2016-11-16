@@ -21,4 +21,5 @@ for i in range(1, 20):
     image = imread(rgb_from_id(i))
     imsave(str(parent_path / ('image-%s.jpg' % i)), image)
     result = b.compare(image, 2)
-    imsave(str(parent_path / ('result-%s.jpg' % i)), result)
+    for k in result:
+        imsave(str(parent_path / ('result-%s-%s.jpg' % (i, k))), result[k])
