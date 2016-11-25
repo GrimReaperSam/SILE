@@ -24,7 +24,7 @@ class Enhancer(metaclass=abc.ABCMeta):
 
     def make_transfer(self, z_delta, strength, **kwargs):
         s_max = 5
-        bin_centers, x2 = self.init_transfer_function(kwargs)
+        bin_centers, x2 = self.init_transfer_function(**kwargs)
         f_derivative = interp1d(bin_centers, strength * z_delta, fill_value='extrapolate')
 
         slopes = f_derivative(x2)
