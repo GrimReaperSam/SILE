@@ -5,12 +5,12 @@ from src.shared import *
 
 
 class ImageComparator:
-    def compare(self, image, s):
-        description_data = self.z_collection.descriptors['gray_hist']
-        return enhance_image(image, 'gray_hist', description_data, s)
+    def compare(self, image, z_collection):
+        description_data = z_collection.descriptors['gray_hist']
+        return enhance_image(image, 'gray_hist', description_data)
 
 
-def enhance_image(image, key, description_data, s):
+def enhance_image(image, key, description_data):
     delta, image_description = compare_descriptor(image, key, description_data)
     # Delta is positive so we need the highest difference to see if it's worth checking this descriptor
     return key, description_data.descriptor * delta
