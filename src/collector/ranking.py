@@ -11,6 +11,7 @@ def ranksum(descriptor_name, descriptions, positive_indices, negative_indices):
         ranks = np.apply_along_axis(rankdata, 0, descriptions)
         np.savez_compressed(str(ranks_path), descriptor_name=ranks)
     else:
+        ranks_path.parent.mkdir(exist_ok=True, parents=True)
         npz_file = np.load(str(ranks_path))
         ranks = npz_file[descriptor_name]
     ranksum_array = ranks[positive_indices].sum(axis=0)
