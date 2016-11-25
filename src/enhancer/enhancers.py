@@ -104,8 +104,8 @@ class RGBHistogramEnhancer(Enhancer):
         return rgb.astype(np.uint8)
 
     def init_transfer_function(self):
-        bin_centers = np.linspace(1 / 32, 31 / 32, 16)
-        x2 = np.linspace(0, 1, 360)
+        bin_centers = np.linspace(1 / 16, 15 / 16, 8)
+        x2 = np.linspace(0, 1, 255)
         return bin_centers, x2
 
 

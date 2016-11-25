@@ -1,13 +1,12 @@
-from scipy.interpolate import interp1d
-
 from src.descriptors.descriptors import *
 from src.shared import *
 
 
 class ImageComparator:
     def compare(self, image, z_collection):
-        description_data = z_collection.descriptors['gray_hist']
-        return enhance_image(image, 'gray_hist', description_data)
+        key = 'rgb_hist'
+        description_data = z_collection.descriptors[key]
+        return enhance_image(image, key, description_data)
 
 
 def enhance_image(image, key, description_data):
