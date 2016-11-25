@@ -1,8 +1,8 @@
 import abc
 
-import numpy as np
-
 from scipy.interpolate import interp1d
+
+from ..descriptors.color_helpers import *
 
 
 class Enhancer(metaclass=abc.ABCMeta):
@@ -24,16 +24,6 @@ class Enhancer(metaclass=abc.ABCMeta):
     def make_transfer(self, z_delta, strength):
         s_max = 5
         bin_centers, x2 = self.init_transfer_function()
-        # elif key == 'chroma_hist':
-        #     bin_centers = np.linspace(1 / 32, 31 / 32, 16)
-        #     x2 = np.linspace(0, 1, 80)
-        # elif key == 'hue_angle_hist':
-        #     bin_centers = np.linspace(1 / 32, 31 / 32, 16)
-        #     x2 = np.linspace(0, 1, 360)
-        # elif key == 'rgb_hist':
-        #     bin_centers = np.linspace(1 / 16, 15 / 16, 8)
-        #     x2 = np.linspace(0, 1, 255)
-
         f_derivative = interp1d(bin_centers, strength * z_delta, fill_value='extrapolate')
 
         slopes = f_derivative(x2)
@@ -48,15 +38,9 @@ class Enhancer(metaclass=abc.ABCMeta):
         mmap = mmap / mmap.max()
 
         return x2, mmap
-        # elif key == 'chroma_hist':
-        #     return x2, mmap * 80
-        # elif key == 'hue_angle_hist':
-        #     return x2, mmap * 360
-        # elif key == 'rgb_hist':
-        #     return x2, mmap * 255
 
 
-class GLHEnhancer(Enhancer):
+class GrayLevelHistogramEnhancer(Enhancer):
     def enhance(self, image, z_delta, strength):
         x2, mmap = self.make_transfer(z_delta, strength)
         transfer_function = interp1d(x2, mmap * 255, fill_value='extrapolate')
@@ -67,11 +51,69 @@ class GLHEnhancer(Enhancer):
         x2 = np.linspace(0, 1, 255)
         return bin_centers, x2
 
+
+class ChromaHistogramEnhancer(Enhancer):
+    def enhance(self, image, z_delta, strength):
+        x2, mmap = self.make_transfer(z_delta, strength)
+        transfer_function = interp1d(x2, mmap * 80, fill_value='extrapolate')
+        lch = lab_to_lch(rgb_to_lab(image))
+        lch[..., 1] = transfer_function(lch[..., 1] / 80)
+        return lab_to_rgb(lch_to_lab(lch))
+
+    def init_transfer_function(self):
+        bin_centers = np.linspace(1 / 16, 15 / 16, 8)
+        x2 = np.linspace(0, 1, 255)
+        return bin_centers, x2
+
+
+class HueHistogramEnhancer(Enhancer):
+    def enhance(self, image, z_delta, strength):
+        x2, mmap = self.make_transfer(z_delta, strength)
+        transfer_function = interp1d(x2, mmap * 360, fill_value='extrapolate')
+        lch = lab_to_lch(rgb_to_lab(image))
+        lch[..., 2] = transfer_function(lch[..., 2] / 360)
+        return lab_to_rgb(lch_to_lab(lch))
+
+    def init_transfer_function(self):
+        bin_centers = np.linspace(1 / 32, 31 / 32, 16)
+        x2 = np.linspace(0, 1, 360)
+        return bin_centers, x2
+
+
+class RGBHistogramEnhancer(Enhancer):
+    def enhance(self, image, z_delta, strength):
+        rgb = np.empty(image.shape)
+        # Red
+        zr = z_delta.sum(axis=(1, 2))
+        x2, mmap = self.make_transfer(zr, strength)
+        f = interp1d(x2, mmap * 255, fill_value='extrapolate')
+        rgb[..., 0] = f(image[..., 0] / 255)
+
+        # Green
+        zg = z_delta.sum(axis=(0, 2))
+        x2, mmap = self.make_transfer(zg, strength)
+        f = interp1d(x2, mmap * 255, fill_value='extrapolate')
+        rgb[..., 1] = f(image[..., 1] / 255)
+
+        # Blue
+        zb = z_delta.sum(axis=(0, 1))
+        x2, mmap = self.make_transfer(zb, strength)
+        f = interp1d(x2, mmap * 255, fill_value='extrapolate')
+        rgb[..., 2] = f(image[..., 2] / 255)
+
+        return rgb.astype(np.uint8)
+
+    def init_transfer_function(self):
+        bin_centers = np.linspace(1 / 32, 31 / 32, 16)
+        x2 = np.linspace(0, 1, 360)
+        return bin_centers, x2
+
+
 ENHANCERS = {
-    'gray_hist': GLHEnhancer(),
-    # 'chroma_hist': ChromaHistogram(),
-    # 'hue_angle_hist': HueHistogram(),
-    # 'rgb_hist': RGBHistogram(),
+    'gray_hist': GrayLevelHistogramEnhancer(),
+    'chroma_hist': ChromaHistogramEnhancer(),
+    'hue_angle_hist': HueHistogramEnhancer(),
+    'rgb_hist': RGBHistogramEnhancer(),
     # 'lab_hist': LABHistogram(),
     # 'lch_hist': LCHHistogram(),
     # 'lightness_layout': LightnessLayout(),
