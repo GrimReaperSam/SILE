@@ -4,7 +4,7 @@ from src.shared import *
 
 class ImageComparator:
     def compare(self, image, z_collection):
-        key = 'rgb_hist'
+        key = 'lab_hist'
         description_data = z_collection.descriptors[key]
         return enhance_image(image, key, description_data)
 
