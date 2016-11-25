@@ -8,7 +8,7 @@ from ..filesystem.providers import MyDescriptorProvider, MyZProvider
 class ImageEnhancer:
     def __init__(self):
         self.z_collector = ZCollector(MyDescriptorProvider(), MyZProvider())
-        self.comparator = ImageComparator
+        self.comparator = ImageComparator()
 
     def enhance(self, image, keyword, strength):
         z_collection = self.z_collector.collect(keyword)
