@@ -22,6 +22,9 @@ Z_VALUE_PATHS = WORK_PATH / 'z-values'
 # COLLECTION PATHS
 COLLECTIONS_PATHS = WORK_PATH / 'collections'
 
+# RANKS PATHS
+RANKS_PATHS = WORK_PATH / 'ranks'
+
 
 def path_from_id(image_id):
     return Path(__get_prefix(image_id)) / ('%s.jpg' % image_id)
@@ -46,6 +49,9 @@ def z_value_from_keyword(keyword):
 def collections_from_descriptor(descriptor_name):
     return COLLECTIONS_PATHS / ('%s.pkl' % descriptor_name)
 
+
+def ranks_from_descriptor(descriptor_name):
+    return RANKS_PATHS / ('%s.npz' % descriptor_name)
 
 def __get_prefix(image_id):
     if image_id > 9:

@@ -2,9 +2,17 @@ from scipy.stats import rankdata
 
 from src.shared import *
 
+from ..filesystem.config_paths import ranks_from_descriptor
 
-def ranksum(descriptions, positive_indices, negative_indices):
-    ranks = np.apply_along_axis(rankdata, 0, descriptions)
+
+def ranksum(descriptor_name, descriptions, positive_indices, negative_indices):
+    ranks_path = ranks_from_descriptor(descriptor_name)
+    if not ranks_path.exists():
+        ranks = np.apply_along_axis(rankdata, 0, descriptions)
+        np.savez_compressed(str(ranks_path), descriptor_name=ranks)
+    else:
+        npz_file = np.load(str(ranks_path))
+        ranks = npz_file[descriptor_name]
     ranksum_array = ranks[positive_indices].sum(axis=0)
 
     positive_count = positive_indices.size
