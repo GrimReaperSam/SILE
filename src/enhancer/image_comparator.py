@@ -1,31 +1,19 @@
 from scipy.interpolate import interp1d
 
-from ..descriptors.descriptors import *
-from ..shared import *
+from src.descriptors.descriptors import *
+from src.shared import *
 
 
 class ImageComparator:
-    def __init__(self, z_collection):
-        self.z_collection = z_collection
-
     def compare(self, image, s):
-        images = {}
-        for key in ['gray_hist', 'chroma_hist', 'hue_angle_hist', 'rgb_hist']:
-            description_data = self.z_collection.descriptors[key]
-            if description_data.delta_z > Z_VALUE_THRESHOLD:
-                images[key] = enhance_image(image, key, description_data, s)
-            else:
-                images[key] = image
-        return images
+        description_data = self.z_collection.descriptors['gray_hist']
+        return enhance_image(image, 'gray_hist', description_data, s)
 
 
 def enhance_image(image, key, description_data, s):
     delta, image_description = compare_descriptor(image, key, description_data)
     # Delta is positive so we need the highest difference to see if it's worth checking this descriptor
-    if delta.max() > DELTA_THRESHOLD:
-        z_delta = description_data.descriptor * delta
-        return transfer(image, key, z_delta, s)
-    return image
+    return key, description_data.descriptor * delta
 
 
 def compare_descriptor(image, key, description_data):
