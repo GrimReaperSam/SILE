@@ -162,8 +162,8 @@ class LABHistogramEnhancer(Enhancer):
             bin_centers = np.linspace(1 / 16, 15 / 16, 8)
             x2 = np.linspace(0, 1, 100)
         else:
-            bin_centers = np.linspace(-15 / 16, 15 / 16, 8)
-            x2 = np.linspace(-1, 1, 160)
+            bin_centers = np.linspace(-7 / 16, 7 / 16, 8)
+            x2 = np.linspace(-0.5, 0.5, 160)
         return bin_centers, x2
 
 
