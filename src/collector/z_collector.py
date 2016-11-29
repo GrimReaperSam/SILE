@@ -1,5 +1,6 @@
 import abc
 import logging
+from copy import deepcopy
 
 import numpy as np
 
@@ -50,6 +51,16 @@ class ZCollection:
 
         self.positive_count = 0
         self.negative_count = 0
+
+    def reject(self, *args):
+        """
+        :param args: The keywords to reject
+        :return: A ZCollection without the keys provided
+        """
+        new_z_col = deepcopy(self)
+        for key in args:
+            new_z_col.descriptors.pop(key, None)
+        return new_z_col
 
     def top(self, n):
         """
