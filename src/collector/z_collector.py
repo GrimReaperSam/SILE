@@ -51,6 +51,14 @@ class ZCollection:
         self.positive_count = 0
         self.negative_count = 0
 
+    def top(self, n):
+        """
+        :param n the number of top descriptors ranked by z-values
+        :return The top n descriptors in this keyword's z_collection
+        """
+        sorted_descriptors = sorted(self.descriptors.items(), key=lambda item: item[1].delta_z, reverse=True)
+        return sorted_descriptors[:n]
+
     def __repr__(self):
         result = 'ZCollection for %s: \n' % self.keyword
         result += 'Positives %s, Negatives: %s\n' % (self.positive_count, self.negative_count)
