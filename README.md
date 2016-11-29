@@ -1,7 +1,4 @@
 ### Features to be covered ###
-
-    * High Frequency Histogram
-    * Frequency Histogram
     * Linear Binary Pattern Histogram
 
 ### Features currently covered ###
@@ -17,3 +14,4 @@
     * Hue Angle Layout
     * Gabor Filter Histogram
     * Gabor Filter Layout
+    * Frequency Histogram
