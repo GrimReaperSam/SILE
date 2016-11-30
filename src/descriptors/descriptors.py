@@ -25,8 +25,9 @@ class Descriptor(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def compute(self, image):
+    def compute(self, image, mask=None):
         """
+        :param mask:
         :param image: Either Path or an image ID in the DB
         :return: The descriptor for this image
         """
@@ -65,98 +66,15 @@ class GrayLevelHistogram(Descriptor):
     def shape(self):
         return self.nbins,
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         image_data = self._get_image(image)
         if image_data.ndim == 3:
             image_data = np.mean(image_data, 2)
+        if mask is not None:
+            image_data = image_data[mask]
         hist = np.histogram(image_data, range=(0, 256), bins=self.nbins)[0]
         hist_sum = hist.sum()
         return hist / hist_sum if hist_sum != 0 else hist
-
-
-class LABHistogram(Descriptor):
-    def __init__(self):
-        self.nbins = 8
-
-    @property
-    def shape(self):
-        return self.nbins, self.nbins, self.nbins
-
-    def compute(self, image):
-        lab = self._get_lab(image)
-        h, w, d = lab.shape
-        lab_ = lab.reshape(h * w, d)
-        lab_hist = np.histogramdd(lab_, range=[(0, 100), (-80, 80), (-80, 80)], bins=self.nbins)[0]
-        lab_hist_sum = lab_hist.sum()
-        return lab_hist / lab_hist_sum if lab_hist_sum != 0 else lab_hist
-
-
-class ABHistogram(Descriptor):
-    def __init__(self, nbins=DEFAULT_2D_HISTOGRAM_NBINS):
-        self.nbins = nbins
-
-    @property
-    def shape(self):
-        return self.nbins, self.nbins
-
-    def compute(self, image):
-        lab = self._get_lab(image)
-        h, w, d = lab.shape
-        ab_ = lab[:, :, 1:3].reshape((h * w, d - 1))
-        ab_hist = np.histogramdd(ab_, bins=self.nbins)[0]
-        ab_hist_sum = ab_hist.sum()
-        return ab_hist / ab_hist_sum if ab_hist_sum != 0 else ab_hist
-
-
-class LCHHistogram(Descriptor):
-    def __init__(self):
-        self.nbins = 8
-
-    @property
-    def shape(self):
-        return self.nbins, self.nbins, self.nbins
-
-    def compute(self, image):
-        lab = self._get_lab(image)
-        h, w, d = lab.shape
-        lch = lab_to_lch(lab).reshape(h * w, d)
-        lch_hist = np.histogramdd(lch, range=[(0, 100), (0, 80), (0, 360)], bins=self.nbins)[0]
-        lch_hist_sum = lch_hist.sum()
-        return lch_hist / lch_hist_sum if lch_hist_sum != 0 else lch_hist
-
-
-class CHHistogram(Descriptor):
-    def __init__(self, nbins=DEFAULT_2D_HISTOGRAM_NBINS):
-        self.nbins = nbins
-
-    @property
-    def shape(self):
-        return self.nbins, self.nbins
-
-    def compute(self, image):
-        lab = self._get_lab(image)
-        lch = img_as_float(lab_to_lch(lab))
-        h, w, d = lch.shape
-        ch_ = lch[:, :, 1:3].reshape(h * w, 2)
-        ch_hist = np.histogramdd(ch_, bins=self.nbins)[0]
-        ch_hist_sum = ch_hist.sum()
-        return ch_hist / ch_hist_sum if ch_hist_sum != 0 else ch_hist
-
-
-class LightnessHistogram(Descriptor):
-    def __init__(self, nbins=DEFAULT_1D_HISTOGRAM_NBINS):
-        self.nbins = nbins
-
-    @property
-    def shape(self):
-        return self.nbins,
-
-    def compute(self, image):
-        lab = self._get_lab(image)
-        l_ = img_as_float(lab[:, :, 0])
-        l_hist = exposure.histogram(l_, nbins=self.nbins)[0]
-        l_hist_sum = l_hist.sum()
-        return l_hist / l_hist_sum if l_hist_sum != 0 else l_hist
 
 
 class ChromaHistogram(Descriptor):
@@ -167,9 +85,11 @@ class ChromaHistogram(Descriptor):
     def shape(self):
         return self.nbins,
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         lab = self._get_lab(image)
         c_ = np.sqrt(lab[..., 1] ** 2 + lab[..., 2] ** 2)
+        if mask is not None:
+            c_ = c_[mask]
         c_hist = np.histogram(c_, range=(0, 50), bins=16)[0]
         c_hist_sum = c_hist.sum()
         return c_hist / c_hist_sum if c_hist_sum != 0 else c_hist
@@ -183,14 +103,16 @@ class HueHistogram(Descriptor):
     def shape(self):
         return self.nbins,
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         lab = self._get_lab(image)
         lab_c = np.sqrt(lab[..., 1] ** 2 + lab[..., 2] ** 2)
         lab_h = 180 / np.pi * np.arctan2(lab[..., 2], lab[..., 1])
         neg = lab_h < 0
         lab_h[neg] += 360
-        mask = lab_c > 1
-        if mask.sum() > 16:
+        c_mask = lab_c > 1
+        if c_mask.sum() > 16:
+            if mask is not None:
+                lab_h = lab_h[mask]
             h_hist = np.histogram(lab_h, range=(0, 360), bins=16)[0]
         else:
             h_hist = np.zeros(16)
@@ -206,14 +128,58 @@ class RGBHistogram(Descriptor):
     def shape(self):
         return self.nbins, self.nbins, self.nbins
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         image_data = self._get_image(image)
         image_data = gray2rgb(image_data)
         h, w, d = image_data.shape
-        rgb = image_data.reshape(h * w, d)
+        if mask is not None:
+            rgb = image_data[mask]
+        else:
+            rgb = image_data.reshape(h * w, d)
         rgb_hist = np.histogramdd(rgb, bins=self.nbins)[0]
         rgb_hist_sum = rgb_hist.sum()
         return rgb_hist / rgb_hist_sum if rgb_hist_sum != 0 else rgb_hist
+
+
+class LABHistogram(Descriptor):
+    def __init__(self):
+        self.nbins = 8
+
+    @property
+    def shape(self):
+        return self.nbins, self.nbins, self.nbins
+
+    def compute(self, image, mask=None):
+        lab = self._get_lab(image)
+        h, w, d = lab.shape
+        if mask is not None:
+            lab_ = lab[mask]
+        else:
+            lab_ = lab.reshape(h * w, d)
+        lab_hist = np.histogramdd(lab_, range=[(0, 100), (-80, 80), (-80, 80)], bins=self.nbins)[0]
+        lab_hist_sum = lab_hist.sum()
+        return lab_hist / lab_hist_sum if lab_hist_sum != 0 else lab_hist
+
+
+class LCHHistogram(Descriptor):
+    def __init__(self):
+        self.nbins = 8
+
+    @property
+    def shape(self):
+        return self.nbins, self.nbins, self.nbins
+
+    def compute(self, image, mask=None):
+        lab = self._get_lab(image)
+        h, w, d = lab.shape
+        lch = lab_to_lch(lab)
+        if mask is not None:
+            lch = lch[mask]
+        else:
+            lch = lch.reshape(h * w, d)
+        lch_hist = np.histogramdd(lch, range=[(0, 100), (0, 80), (0, 360)], bins=self.nbins)[0]
+        lch_hist_sum = lch_hist.sum()
+        return lch_hist / lch_hist_sum if lch_hist_sum != 0 else lch_hist
 
 
 class LightnessLayout(Descriptor):
@@ -221,7 +187,7 @@ class LightnessLayout(Descriptor):
     def shape(self):
         return 8, 8
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         lab = self._get_lab(image)
         l_layout = sample8x8(lab[..., 0])
         l_layout -= l_layout.min()
@@ -233,7 +199,7 @@ class ChromaLayout(Descriptor):
     def shape(self):
         return 8, 8
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         lab = self._get_lab(image)
         c_ = np.sqrt(lab[..., 1] ** 2 + lab[..., 2] ** 2)
         c_layout = sample8x8(c_)
@@ -246,7 +212,7 @@ class HueLayout(Descriptor):
     def shape(self):
         return 8, 8
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         lab = self._get_lab(image)
         lab_c = np.sqrt(lab[..., 1] ** 2 + lab[..., 2] ** 2)
         lab_h = 180 / np.pi * np.arctan2(lab[..., 2], lab[..., 1])
@@ -264,7 +230,7 @@ class LightnessHighLayout(Descriptor):
     def shape(self):
         return 8, 8
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_blur, ss = compute_lightness_blur(l_, self.blur_factor)
@@ -284,7 +250,7 @@ class DetailsHistogram(Descriptor):
     def shape(self):
         return self.nbins, 3
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_blur, ss = compute_lightness_blur(l_, 0.1)
@@ -320,7 +286,7 @@ class DetailsLayout(Descriptor):
     def shape(self):
         return 8, 8, 3
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
         l_blur, ss = compute_lightness_blur(l_, 0.1)
@@ -376,7 +342,7 @@ class GaborHistogram(Descriptor):
     def shape(self):
         return gb.sizes.size, gb.thetas.size, self.nbins
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
 
@@ -396,7 +362,7 @@ class GaborLayout(Descriptor):
     def shape(self):
         return gb.sizes.size, gb.thetas.size, 8, 8
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         lab = self._get_lab(image)
         l_ = img_as_float(lab[:, :, 0])
 
@@ -418,12 +384,64 @@ class LightnessFourier(Descriptor):
     def shape(self):
         return 21, 21
 
-    def compute(self, image):
+    def compute(self, image, mask=None):
         lab = self._get_lab(image)
         l_ = lab[..., 0]
         fourier = np.fft.fft2(l_)
         shifted = np.fft.fftshift(fourier)
         return imresize(np.abs(shifted), 21, 21)
+
+
+# UNUSED Descriptors in the original paper
+class ABHistogram(Descriptor):
+    def __init__(self, nbins=DEFAULT_2D_HISTOGRAM_NBINS):
+        self.nbins = nbins
+
+    @property
+    def shape(self):
+        return self.nbins, self.nbins
+
+    def compute(self, image, mask=None):
+        lab = self._get_lab(image)
+        h, w, d = lab.shape
+        ab_ = lab[:, :, 1:3].reshape((h * w, d - 1))
+        ab_hist = np.histogramdd(ab_, bins=self.nbins)[0]
+        ab_hist_sum = ab_hist.sum()
+        return ab_hist / ab_hist_sum if ab_hist_sum != 0 else ab_hist
+
+
+class CHHistogram(Descriptor):
+    def __init__(self, nbins=DEFAULT_2D_HISTOGRAM_NBINS):
+        self.nbins = nbins
+
+    @property
+    def shape(self):
+        return self.nbins, self.nbins
+
+    def compute(self, image, mask=None):
+        lab = self._get_lab(image)
+        lch = img_as_float(lab_to_lch(lab))
+        h, w, d = lch.shape
+        ch_ = lch[:, :, 1:3].reshape(h * w, 2)
+        ch_hist = np.histogramdd(ch_, bins=self.nbins)[0]
+        ch_hist_sum = ch_hist.sum()
+        return ch_hist / ch_hist_sum if ch_hist_sum != 0 else ch_hist
+
+
+class LightnessHistogram(Descriptor):
+    def __init__(self, nbins=DEFAULT_1D_HISTOGRAM_NBINS):
+        self.nbins = nbins
+
+    @property
+    def shape(self):
+        return self.nbins,
+
+    def compute(self, image, mask=None):
+        lab = self._get_lab(image)
+        l_ = img_as_float(lab[:, :, 0])
+        l_hist = exposure.histogram(l_, nbins=self.nbins)[0]
+        l_hist_sum = l_hist.sum()
+        return l_hist / l_hist_sum if l_hist_sum != 0 else l_hist
 
 
 DESCRIPTORS = {
