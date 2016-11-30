@@ -4,11 +4,10 @@ from copy import deepcopy
 
 import numpy as np
 
-from .ranking import ranksum, delta_z
-
-from ..descriptors.descriptors_calculator import DescriptorsCalculator
-from ..descriptors.descriptors import DESCRIPTORS
-from ..filesystem.flicker_reader import FlickerDB
+from src.collector.ranking import ranksum, delta_z
+from src.descriptors.descriptors import DESCRIPTORS
+from src.descriptors.descriptors_calculator import DescriptorsCalculator
+from src.filesystem.flicker_reader import FlickerDB
 
 
 class ZCollector:

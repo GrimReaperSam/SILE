@@ -1,6 +1,6 @@
 import concurrent.futures as ft
 
-from .descriptors import *
+from src.descriptors.descriptors import *
 
 
 class DescriptorsCalculator:

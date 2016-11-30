@@ -1,9 +1,9 @@
-import os
 import logging
+import os
 
 import pandas as pd
 
-from .config_paths import *
+from src.config_paths import *
 
 
 class FlickerDB:

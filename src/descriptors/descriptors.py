@@ -1,19 +1,17 @@
 import abc
 import logging
 
+from scipy import ndimage as ndi
+from scipy.io import loadmat
 from skimage import exposure, img_as_float
 from skimage.color import gray2rgb
 from skimage.io import imread
 
-from scipy import ndimage as ndi
-from scipy.io import loadmat
-
-from .descriptors_helpers import *
-from .color_helpers import *
-from .matlab import imresize
-
-from ..filesystem.config_paths import *
-from ..shared import *
+from src.color_helpers import *
+from src.config_paths import *
+from src.descriptors.descriptors_helpers import *
+from src.descriptors.matlab import imresize
+from src.shared import *
 
 
 class Descriptor(metaclass=abc.ABCMeta):

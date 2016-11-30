@@ -1,4 +1,4 @@
-from . import descriptors
 from . import collector
-from . import filesystem
+from . import descriptors
 from . import enhancer
+from . import filesystem

@@ -53,6 +53,7 @@ def collections_from_descriptor(descriptor_name):
 def ranks_from_descriptor(descriptor_name):
     return RANKS_PATHS / ('%s.npz' % descriptor_name)
 
+
 def __get_prefix(image_id):
     if image_id > 9:
         return str(image_id)[-2:]

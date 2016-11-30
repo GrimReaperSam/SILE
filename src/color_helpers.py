@@ -14,7 +14,7 @@ def rgb_to_lab(rgb_image):
 
     xyz = np.dot(xyz_transformation_matrix, rgb)
     # Normalizing for D65 white point
-    xyz = xyz / np.array([[0.950456], [1.0], [1.088754]])
+    xyz /= np.array([[0.950456], [1.0], [1.088754]])
 
     xyz_threshold = xyz > threshold
     f_xyz = xyz_threshold * xyz ** (1 / 3) + ~xyz_threshold * (7.787 * xyz + 16 / 116)

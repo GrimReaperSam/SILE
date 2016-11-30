@@ -1,5 +1,4 @@
 from src.descriptors.descriptors import *
-from src.shared import *
 
 
 class ImageComparator:

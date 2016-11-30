@@ -1,10 +1,10 @@
-import numpy as np
 import pickle
 
-from ..collector.z_collector import ZProvider
-from ..descriptors.descriptors_calculator import DescriptorProvider
+import numpy as np
 
-from .config_paths import z_value_from_keyword, descriptor_from_id
+from src.collector.z_collector import ZProvider
+from src.config_paths import z_value_from_keyword, descriptor_from_id
+from src.descriptors.descriptors_calculator import DescriptorProvider
 
 
 # TODO try to find a better way!

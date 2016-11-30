@@ -1,10 +1,10 @@
 import abc
 
-from skimage.filters import gaussian
 from scipy.interpolate import interp1d
+from skimage.filters import gaussian
 
-from ..descriptors.color_helpers import *
-from ..shared import *
+from src.color_helpers import *
+from src.shared import *
 
 
 class Enhancer(metaclass=abc.ABCMeta):

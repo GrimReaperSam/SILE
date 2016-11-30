@@ -1,8 +1,7 @@
 from scipy.stats import rankdata
 
+from src.config_paths import ranks_from_descriptor
 from src.shared import *
-
-from ..filesystem.config_paths import ranks_from_descriptor
 
 
 def ranksum(descriptor_name, descriptions, positive_indices, negative_indices):

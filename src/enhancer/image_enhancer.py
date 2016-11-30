@@ -1,8 +1,7 @@
-from .enhancers import ENHANCERS
-from .image_comparator import ImageComparator
-
-from ..collector import ZCollector
-from ..filesystem.providers import MyDescriptorProvider, MyZProvider
+from src.collector import ZCollector
+from src.enhancer.enhancers import ENHANCERS
+from src.enhancer.image_comparator import ImageComparator
+from src.filesystem.providers import MyDescriptorProvider, MyZProvider
 
 
 class ImageEnhancer:

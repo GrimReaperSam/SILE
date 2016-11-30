@@ -3,10 +3,10 @@ from pathlib import Path
 
 from skimage.io import imread, imsave
 
-from src.filesystem.providers import *
-from src.filesystem.config_paths import rgb_from_id
 from src.collector import ZCollector
+from src.config_paths import rgb_from_id
 from src.enhancer import ImageEnhancer
+from src.filesystem.providers import *
 
 logging.getLogger().setLevel(logging.INFO)
 
