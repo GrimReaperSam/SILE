@@ -283,9 +283,9 @@ class LCHHistogramEnhancer(Enhancer):
         f = interp1d(x2, mmap * 80, fill_value='extrapolate')
         result[..., 1][mask] = f(lch[..., 1][mask] / 80)
 
-        # B-channel
-        b_channel = z_delta.sum(axis=(0, 1))
-        x2, mmap = self._make_transfer(b_channel, strength, channel='H')
+        # H-channel
+        h_channel = z_delta.sum(axis=(0, 1))
+        x2, mmap = self._make_transfer(h_channel, strength, channel='H')
         f = interp1d(x2, mmap * 360, fill_value='extrapolate')
         result[..., 2][mask] = f(lch[..., 2][mask] / 360)
 
