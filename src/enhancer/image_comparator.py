@@ -11,7 +11,7 @@ class ImageComparator:
                                               'frequency_hist').top(3):
             delta = self.compare_descriptor(image, descriptor[0], descriptor[1], mask)
             delta_z = descriptor[1].descriptor * delta
-            if best_descriptor is None or best_delta_z.max() - best_delta_z.min() < delta_z.max() - delta_z.min():
+            if best_descriptor is None or np.linalg.norm(best_delta_z) < np.linalg.norm(delta_z):
                 best_key = descriptor[0]
                 best_descriptor = descriptor[1]
                 best_delta = delta
