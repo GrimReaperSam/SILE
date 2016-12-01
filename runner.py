@@ -94,7 +94,7 @@ if __name__ == '__main__':
         imsave(str(save_dir / 'global.png'), result_g)
         imsave(str(save_dir / 'weight-map.png'), (weight_map * 255).astype(np.uint8))
         imsave(str(save_dir / 'weighted.png'), result_w)
-        imsave(str(save_dir / 'segmentation.png'), seg_b.astype(np.uint8))
+        imsave(str(save_dir / 'segmentation.png'), seg_b.astype(np.uint8) * 255)
         imsave(str(save_dir / 'local.png'), result_l)
 
         # fig = plt.figure()
