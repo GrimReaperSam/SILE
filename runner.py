@@ -47,13 +47,16 @@ def color_map_array():
 
 
 if __name__ == '__main__':
+    prefix = '/home/fayez/Downloads'
+
     logging.getLogger().setLevel(logging.INFO)
     class_colors = color_map_array()
 
-    segmented = pd.read_csv('/home/fayez/Downloads/VOCdevkit/VOC2012/ImageSets/Segmentation/train.txt', header=None, names=['file'])
+    segmented = pd.read_csv('%s/VOCdevkit/VOC2012/ImageSets/Segmentation/train.txt' % prefix, header=None, names=['file'])
 
     seg_kw = LABELS[16]
-    df = pd.read_csv('/home/fayez/Downloads/VOCdevkit/VOC2012/ImageSets/Main/%s_train.txt' % seg_kw, header=None, sep=r'\s+', names=['file', 'label'])
+    df = pd.read_csv('%s/VOCdevkit/VOC2012/ImageSets/Main/%s_train.txt' % (prefix, seg_kw),
+                     header=None, sep=r'\s+', names=['file', 'label'])
     plants = df[df['label'] == 1]
 
     seg_plants = pd.merge(plants, segmented, how='right', on='file', right_index=False, left_index=False)
@@ -63,14 +66,14 @@ if __name__ == '__main__':
     base_dir.mkdir(exist_ok=True, parents=True)
 
     for image_file in files[:30]:
-        seg = imread('/home/fayez/Downloads/VOCdevkit/VOC2012/SegmentationClass/%s.png' % image_file)
-        image = imread('/home/fayez/Downloads/VOCdevkit/VOC2012/JPEGImages/%s.jpg' % image_file)
+        seg = imread('%s/VOCdevkit/VOC2012/SegmentationClass/%s.png' % (prefix, image_file))
+        image = imread('%s/VOCdevkit/VOC2012/JPEGImages/%s.jpg' % (prefix, image_file))
         seg_b = np.all(seg == class_colors[seg_kw], axis=2)
 
         filename = z_value_from_keyword(seg_kw)
         z_collection = pickle.load(open(str(filename), 'rb'))
 
-        save_dir = base_dir / filename
+        save_dir = base_dir / seg_kw / image_file
         save_dir.mkdir(exist_ok=True, parents=True)
 
         image_comparator = ImageComparator()
@@ -89,9 +92,9 @@ if __name__ == '__main__':
 
         imsave(str(save_dir / 'original.png'), image)
         imsave(str(save_dir / 'global.png'), result_g)
-        imsave(str(save_dir / 'weight-map.png'), weight_map)
+        imsave(str(save_dir / 'weight-map.png'), (weight_map * 255).astype(np.uint8))
         imsave(str(save_dir / 'weighted.png'), result_w)
-        imsave(str(save_dir / 'segmentation.png'), seg_b)
+        imsave(str(save_dir / 'segmentation.png'), seg_b.astype(np.uint8))
         imsave(str(save_dir / 'local.png'), result_l)
 
         # fig = plt.figure()
