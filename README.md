@@ -1,17 +1,7 @@
-### Features to be covered ###
-    * Linear Binary Pattern Histogram
+### TODO ###
 
-### Features currently covered ###
+- [ ] Online images for keywords + examples
+- [ ] Amazon rekognition or google vision api for rectangle areas
+    Dense CRF or grabcut
+- [ ] Co-Segmentation
 
-    * Graylevel Histogram
-    * Chroma Histogram
-    * Hue Angle Histogram
-    * RGB Histogram
-    * LAB Histogram
-    * LCH Histogram
-    * Ligness Layout
-    * Chrome Layout
-    * Hue Angle Layout
-    * Gabor Filter Histogram
-    * Gabor Filter Layout
-    * Frequency Histogram
