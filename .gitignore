@@ -2,6 +2,6 @@
 .idea
 *.iml
 
-ZValues
 .ipynb_checkpoints
-*.ipynb
+
+z-values
