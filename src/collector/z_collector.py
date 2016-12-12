@@ -51,6 +51,17 @@ class ZCollection:
         self.positive_count = 0
         self.negative_count = 0
 
+    def allow(self, *args):
+        """
+        :param args: The keywords to allow
+        :return: A ZCollection with only the allowed keys
+        """
+        new_z_col = deepcopy(self)
+        new_z_col.descriptors = {}
+        for key in args:
+            new_z_col.descriptors[key] = deepcopy(self.descriptors[key])
+        return new_z_col
+
     def reject(self, *args):
         """
         :param args: The keywords to reject
