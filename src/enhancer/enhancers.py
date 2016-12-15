@@ -1,6 +1,6 @@
 import abc
 
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d, splrep, splev
 from skimage.filters import gaussian
 
 from src.color_helpers import *
@@ -143,9 +143,9 @@ class HueHistogramEnhancer(Enhancer):
         mask = self._get_mask(image, mask)
 
         x2, mmap = self._make_transfer(z_delta, strength)
-        transfer_function = interp1d(x2, mmap * 360, fill_value='extrapolate')
+        tck = splrep(x2, mmap * 360, xb=0, xe=1)
         lch = lab_to_lch(rgb_to_lab(image))
-        lch[..., 2][mask] = transfer_function(lch[..., 2][mask] / 360)
+        lch[..., 2][mask] = splev(lch[..., 2][mask] / 360, tck)
         return lab_to_rgb(lch_to_lab(lch))
 
     def init_transfer_function(self, **kwargs):
@@ -286,8 +286,8 @@ class LCHHistogramEnhancer(Enhancer):
         # H-channel
         h_channel = z_delta.sum(axis=(0, 1))
         x2, mmap = self._make_transfer(h_channel, strength, channel='H')
-        f = interp1d(x2, mmap * 360, fill_value='extrapolate')
-        result[..., 2][mask] = f(lch[..., 2][mask] / 360)
+        tck = splrep(x2, mmap * 360, xb=0, xe=1)
+        result[..., 2][mask] = splev(lch[..., 2][mask] / 360, tck)
 
         return lab_to_rgb(lch_to_lab(result))
 
