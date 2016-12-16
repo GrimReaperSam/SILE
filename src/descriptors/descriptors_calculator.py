@@ -19,7 +19,8 @@ class DescriptorsCalculator:
                 description = DESCRIPTORS[descriptor_name].compute(image, mask)
             descriptors_matrix[image_index] = description
             logging.info('Processed image: %s' % image_index)
-        except Exception:
+        except Exception as e:
+            print(e)
             logging.info('Image %s could not be processed.' % image_index)
             descriptors_matrix.flush()
 
@@ -52,7 +53,7 @@ class DescriptorsCalculator:
         with ft.ThreadPoolExecutor(max_workers=8) as executor:
             try:
                 for image_index in indices:
-                    image = positives[image_index]
+                    image = image_index + 1
                     executor.submit(self.describe_job, image, descriptor_name, descriptors_matrix, image_index, True)
             except Exception:
                 logging.exception('Not able to describe image %s' % image)
