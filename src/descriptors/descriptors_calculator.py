@@ -26,7 +26,6 @@ class DescriptorsCalculator:
             logging.info('Processed image: %s' % image_index)
         except Exception:
             logging.info('Image %s could not be processed.' % image_index)
-            descriptors_matrix.flush()
 
     def describe_set(self, images, descriptor_name):
         descriptor = DESCRIPTORS[descriptor_name]

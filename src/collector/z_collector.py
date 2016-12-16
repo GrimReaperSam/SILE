@@ -37,7 +37,7 @@ class ZCollector:
                 descriptions = np.copy(descriptions)
                 if local:
                     descriptions = self.descriptor_calculator.replace_locals(descriptions, positives, key)
-                z_collection.descriptors[key] = DescriptorData(key, descriptions, positives - 1, negatives - 1)
+                z_collection.descriptors[key] = DescriptorData(key, descriptions, positives - 1, negatives - 1, local)
                 logging.info('End computing %s z-values for %s' % (key, keyword))
             z_collection.positive_count = len(positives)
             z_collection.negative_count = len(negatives)
@@ -94,8 +94,8 @@ class ZCollection:
 
 
 class DescriptorData:
-    def __init__(self, key, descriptions, positive_indices, negative_indices):
-        self.descriptor = ranksum(key, descriptions, positive_indices, negative_indices)
+    def __init__(self, key, descriptions, positive_indices, negative_indices, local=False):
+        self.descriptor = ranksum(key, descriptions, positive_indices, negative_indices, local)
         self.delta_z = delta_z(self.descriptor)
 
         self.mean = descriptions[positive_indices].mean(axis=0)
