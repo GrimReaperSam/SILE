@@ -15,7 +15,7 @@ class DescriptorsCalculator:
             if local:
                 mask = imread(mask_from_id(image)).astype(np.bool)
 
-            if description is None or np.all(np.isnan(description)):
+            if local or description is None or np.all(np.isnan(description)):
                 description = DESCRIPTORS[descriptor_name].compute(image, mask)
             descriptors_matrix[image_index] = description
             logging.info('Processed image: %s' % image_index)
