@@ -12,8 +12,9 @@ FLICKER_PANDAS_STRUCTURE = WORK_PATH / 'mirflickr_pd.pkl'
 # DB PATHS
 RGB_IMAGES = BASE_PATH / DB_PATH / 'photos/1024'
 LAB_IMAGES = BASE_PATH / DB_PATH / 'photos/cielab'
+
 # MASKS PATHS
-MASKS = BASE_PATH / DB_PATH / 'masks'
+MASKS_PATH = WORK_PATH / 'masks'
 
 # DESCRIPTOR PATHS
 DESCRIPTOR_PATHS = WORK_PATH / 'descriptors'
@@ -37,7 +38,7 @@ def rgb_from_id(image_id):
 
 
 def mask_from_id(image_id):
-    return MASKS / path_from_id(image_id)
+    return MASKS_PATH / path_from_id(image_id)
 
 
 def lab_from_id(image_id):
