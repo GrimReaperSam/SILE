@@ -7,11 +7,16 @@ class DescriptorsCalculator:
     def __init__(self, descriptor_provider):
         self.descriptor_provider = descriptor_provider
 
-    def describe_job(self, image, descriptor_name, descriptors_matrix, image_index):
+    def describe_job(self, image, descriptor_name, descriptors_matrix, image_index, local=False):
         try:
             description = self.descriptor_provider.provide(image, descriptor_name)
+
+            mask = None
+            if local:
+                mask = imread(mask_from_id(image)).astype(np.bool)
+
             if description is None or np.all(np.isnan(description)):
-                description = DESCRIPTORS[descriptor_name].compute(image)
+                description = DESCRIPTORS[descriptor_name].compute(image, mask)
             descriptors_matrix[image_index] = description
             logging.info('Processed image: %s' % image_index)
         except Exception:
@@ -40,6 +45,17 @@ class DescriptorsCalculator:
             except Exception:
                 logging.exception('Not able to describe image %s' % image)
         return descriptors_matrix
+
+    def replace_locals(self, descriptors_matrix, positives, descriptor_name):
+        indices = np.array(positives) - 1
+        logging.info('Finding the local descriptors now')
+        with ft.ThreadPoolExecutor(max_workers=8) as executor:
+            try:
+                for image_index in indices:
+                    image = positives[image_index]
+                    executor.submit(self.describe_job, image, descriptor_name, descriptors_matrix, image_index, True)
+            except Exception:
+                logging.exception('Not able to describe image %s' % image)
 
 
 class DescriptorProvider(metaclass=abc.ABCMeta):
