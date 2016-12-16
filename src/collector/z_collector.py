@@ -97,8 +97,8 @@ class DescriptorData:
 
         self.mean = descriptions[positive_indices].mean(axis=0)
         self.std = descriptions[positive_indices].std(axis=0)
-        self.quantiles = np.percentile(descriptions[positive_indices], [25, 50, 75], axis=0)
-        self.q9 = np.percentile(descriptions[positive_indices], [10, 20, 30, 40, 50, 60, 70, 80, 90], axis=0)
+        self.quantiles = np.percentile(descriptions[positive_indices], [0, 25, 50, 75, 100], axis=0)
+        self.q9 = np.percentile(descriptions[positive_indices], [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100], axis=0)
 
     def __repr__(self):
         return 'Delta Z*: %s\n' % self.delta_z

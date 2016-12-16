@@ -15,6 +15,7 @@ class ImageComparator:
                 best_key = descriptor[0]
                 best_descriptor = descriptor[1]
                 best_delta = delta
+                best_importance = importance
         return best_key, best_descriptor.descriptor * best_delta
 
     def compare_descriptor(self, image, key, description_data, mask=None):
@@ -24,10 +25,11 @@ class ImageComparator:
         image_description = DESCRIPTORS[key].compute(image, mask)
 
         pos = descriptor >= 0
-        delta[pos] = np.maximum(0, image_description - description_data.quantiles[2])[pos]
-        delta[~pos] = np.maximum(0, description_data.quantiles[0] - image_description)[~pos]
+        delta[pos] = np.maximum(0, description_data.quantiles[2] - image_description)[pos]
+        delta[~pos] = np.maximum(0, image_description - description_data.quantiles[0])[~pos]
 
         # Divide by either q[25%] or 1 - q[75%]
+        # TODO divide by quantiles[100] - quantiles[75]
         importance[pos] = delta[pos] / (1 - description_data.quantiles[2][pos])
         importance[~pos] = delta[~pos] / description_data.quantiles[0][~pos]
 
