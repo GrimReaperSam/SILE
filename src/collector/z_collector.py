@@ -36,7 +36,7 @@ class ZCollector:
                 descriptions = self.descriptor_calculator.describe_set(self.flicker_db.all_ids(), key)
                 descriptions = np.copy(descriptions)
                 if local:
-                    self.descriptor_calculator.replace_locals(descriptions, positives, key)
+                    descriptions = self.descriptor_calculator.replace_locals(descriptions, positives, key)
                 z_collection.descriptors[key] = DescriptorData(key, descriptions, positives - 1, negatives - 1)
                 logging.info('End computing %s z-values for %s' % (key, keyword))
             z_collection.positive_count = len(positives)

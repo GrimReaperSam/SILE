@@ -7,20 +7,24 @@ class DescriptorsCalculator:
     def __init__(self, descriptor_provider):
         self.descriptor_provider = descriptor_provider
 
-    def describe_job(self, image, descriptor_name, descriptors_matrix, image_index, local=False):
+    def describe_job(self, image, descriptor_name, descriptors_matrix, image_index):
         try:
             description = self.descriptor_provider.provide(image, descriptor_name)
-
-            mask = None
-            if local:
-                mask = imread(mask_from_id(image)).astype(np.bool)
-
-            if local or description is None or np.all(np.isnan(description)):
-                description = DESCRIPTORS[descriptor_name].compute(image, mask)
+            if description is None or np.all(np.isnan(description)):
+                description = DESCRIPTORS[descriptor_name].compute(image)
             descriptors_matrix[image_index] = description
             logging.info('Processed image: %s' % image_index)
-        except Exception as e:
-            print(e)
+        except Exception:
+            logging.info('Image %s could not be processed.' % image_index)
+            descriptors_matrix.flush()
+
+    def describe_job_local(self, image, descriptor_name, descriptors_matrix, image_index):
+        try:
+            mask = imread(mask_from_id(image)).astype(np.bool)
+            description = DESCRIPTORS[descriptor_name].compute(image, mask)
+            descriptors_matrix[image_index] = description
+            logging.info('Processed image: %s' % image_index)
+        except Exception:
             logging.info('Image %s could not be processed.' % image_index)
             descriptors_matrix.flush()
 
@@ -54,9 +58,10 @@ class DescriptorsCalculator:
             try:
                 for image_index in indices:
                     image = image_index + 1
-                    executor.submit(self.describe_job, image, descriptor_name, descriptors_matrix, image_index, True)
+                    executor.submit(self.describe_job_local, image, descriptor_name, descriptors_matrix, image_index)
             except Exception:
                 logging.exception('Not able to describe image %s' % image)
+        return descriptors_matrix
 
 
 class DescriptorProvider(metaclass=abc.ABCMeta):
