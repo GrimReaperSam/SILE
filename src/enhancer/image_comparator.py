@@ -25,12 +25,11 @@ class ImageComparator:
         image_description = DESCRIPTORS[key].compute(image, mask)
 
         pos = descriptor >= 0
-        delta[pos] = np.maximum(0, description_data.quantiles[2] - image_description)[pos]
-        delta[~pos] = np.maximum(0, image_description - description_data.quantiles[0])[~pos]
+        delta[pos] = np.maximum(0, description_data.quantiles[3] - image_description)[pos]
+        delta[~pos] = np.maximum(0, image_description - description_data.quantiles[1])[~pos]
 
-        # Divide by either q[25%] or 1 - q[75%]
-        # TODO divide by quantiles[100] - quantiles[75]
-        importance[pos] = delta[pos] / (1 - description_data.quantiles[2][pos])
-        importance[~pos] = delta[~pos] / description_data.quantiles[0][~pos]
+        # Divide by either q[25%] - q[0%] or q[100%] - q[75%]
+        importance[pos] = delta[pos] / (description_data.quantiles[4] - description_data.quantiles[3])[pos]
+        importance[~pos] = delta[~pos] / (description_data.quantiles[1] - description_data.quantiles[0])[~pos]
 
         return delta, importance.sum() / importance.size
