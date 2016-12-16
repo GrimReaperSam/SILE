@@ -42,7 +42,9 @@ def descriptor_from_id(image_id, descriptor_name):
     return DESCRIPTOR_PATHS / __get_prefix(image_id) / str(image_id) / ('%s.pkl' % descriptor_name)
 
 
-def z_value_from_keyword(keyword):
+def z_value_from_keyword(keyword, local=False):
+    if local:
+        return Z_VALUE_PATHS / ('%s-local.pkl' % keyword)
     return Z_VALUE_PATHS / ('%s.pkl' % keyword)
 
 

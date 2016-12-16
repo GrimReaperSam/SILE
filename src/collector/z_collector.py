@@ -16,10 +16,10 @@ class ZCollector:
         self.descriptor_calculator = DescriptorsCalculator(descriptor_provider)
         self.z_provider = z_provider
 
-    def collect(self, keyword):
+    def collect(self, keyword, local=False):
         logging.info('Start computing z-values for %s' % keyword)
         positives, negatives = self.flicker_db.ids_by_tag(keyword)
-        z_collection = self.z_provider.provide(keyword)
+        z_collection = self.z_provider.provide(keyword, local)
 
         # Check if need to compute using all the descriptors
         if z_collection is None or z_collection.positive_count != len(positives) or z_collection.negative_count != len(negatives):
@@ -38,7 +38,7 @@ class ZCollector:
                 logging.info('End computing %s z-values for %s' % (key, keyword))
             z_collection.positive_count = len(positives)
             z_collection.negative_count = len(negatives)
-            self.z_provider.save(keyword, z_collection)
+            self.z_provider.save(keyword, z_collection, local)
         logging.info('End computing z-values for %s' % keyword)
         return z_collection
 
@@ -116,17 +116,19 @@ class ImageProvider(metaclass=abc.ABCMeta):
 
 class ZProvider(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def provide(self, keyword):
+    def provide(self, keyword, local=False):
         """
         :param keyword: The tag of the images
+        :param local: Whether the z-values are calculated locally or globally
         :return: A ZCollection of Z value for different descriptors
         """
 
     @abc.abstractmethod
-    def save(self, keyword, z_collection):
+    def save(self, keyword, z_collection, local=False):
         """
 
         :param keyword: The tag of the images
         :param z_collection: A ZCollection of Z value for difference descriptors
+        :param local: Whether the z-values are calculated locally or globally
         :return:
         """

@@ -9,15 +9,15 @@ from src.descriptors.descriptors_calculator import DescriptorProvider
 
 # TODO try to find a better way!
 class MyZProvider(ZProvider):
-    def provide(self, keyword):
-        z_value_path = z_value_from_keyword(keyword)
+    def provide(self, keyword, local=False):
+        z_value_path = z_value_from_keyword(keyword, local)
         if z_value_path.exists():
             return pickle.load(open(str(z_value_path), 'rb'))
         else:
             return None
 
-    def save(self, keyword, z_collection):
-        z_value_path = z_value_from_keyword(keyword)
+    def save(self, keyword, z_collection, local=False):
+        z_value_path = z_value_from_keyword(keyword, local)
         z_value_path.parent.mkdir(exist_ok=True, parents=True)
         pickle.dump(z_collection, open(str(z_value_path), 'wb'))
 
