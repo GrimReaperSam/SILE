@@ -1,35 +1,33 @@
 from src.descriptors.descriptors import *
 
 
-class ImageComparator:
-    def compare(self, image, z_collection, mask=None):
-        best_descriptor = None
-        best_key = ''
-        best_delta = None
-        best_importance = 0
-        for descriptor in z_collection.reject('lightness_layout', 'chroma_layout', 'hue_layout', 'details_hist',
-                                              'frequency_hist').top(5):
-            delta, importance = self.compare_descriptor(image, descriptor[0], descriptor[1], mask)
+class ComparisonItem:
+    def __init__(self, image, key, description_data, mask=None):
+        self.key = key
+        self.description_data = description_data
+        self.mask = mask
+        self.delta = None
+        self.delta_z = None
+        self.build(image)
 
-            if best_descriptor is None or importance > best_importance:
-                best_key = descriptor[0]
-                best_descriptor = descriptor[1]
-                best_delta = delta
-                best_importance = importance
-        return best_key, best_descriptor.descriptor * best_delta
-
-    def compare_descriptor(self, image, key, description_data, mask=None):
-        descriptor = description_data.descriptor
+    def build(self, image):
+        descriptor = self.description_data.descriptor
         delta = np.zeros(descriptor.shape)
-        importance = np.zeros(descriptor.shape)
-        image_description = DESCRIPTORS[key].compute(image, mask)
+        image_description = DESCRIPTORS[self.key].compute(image, self.mask)
 
         pos = descriptor >= 0
-        delta[pos] = np.maximum(0, description_data.quantiles[3] - image_description)[pos]
-        delta[~pos] = np.maximum(0, image_description - description_data.quantiles[1])[~pos]
+        delta[pos] = np.maximum(0, self.description_data.quantiles[3] - image_description)[pos]
+        delta[~pos] = np.maximum(0, image_description - self.description_data.quantiles[1])[~pos]
 
-        # Divide by either q[25%] - q[0%] or q[100%] - q[75%]
-        importance[pos] = delta[pos] / (description_data.quantiles[4] - description_data.quantiles[3])[pos]
-        importance[~pos] = delta[~pos] / (description_data.quantiles[1] - description_data.quantiles[0])[~pos]
+        self.delta = delta
+        self.delta_z = descriptor * delta
 
-        return delta, importance.sum() / importance.size
+
+class ImageComparator:
+    def compare(self, image, z_collection, mask=None):
+        delta_list = []
+        for descriptor in z_collection.reject('lightness_layout', 'chroma_layout', 'hue_layout', 'details_hist',
+                                              'frequency_hist').top(6):
+            delta_list.append(ComparisonItem(image, descriptor[0], descriptor[1], mask))
+        return sorted(delta_list, key=lambda ci: np.linalg.norm(ci.delta_z), reverse=True)
+
