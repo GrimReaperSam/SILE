@@ -15,6 +15,11 @@ from src.shared import *
 
 
 class Descriptor(metaclass=abc.ABCMeta):
+    """
+    Abstract class for a descriptor
+    Implementations of this class are used in order to generate image descriptors
+    All activated descriptors are stored in a variable DESCRIPTORS at the bottom of this file
+    """
     @property
     @abc.abstractmethod
     def shape(self):

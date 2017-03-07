@@ -2,6 +2,15 @@ from src.descriptors.descriptors import *
 
 
 class ComparisonItem:
+    """
+        Contains the result of a comparison between an image and a z-value
+        :key is the name of the descriptor used for comparing
+        :description_data is the loaded data containing the z-values as well as some statistics of
+        the images tagged with `key`
+        :mask is a comparison mask that can be used to do local comparison
+        :delta is the comparison result between the image's descriptors and all other images
+        :delta_z is the product of delta and the z-values
+    """
     def __init__(self, image, key, description_data, mask=None):
         self.key = key
         self.description_data = description_data
@@ -24,6 +33,9 @@ class ComparisonItem:
 
 
 class ImageComparator:
+    """
+        Utilities for comparing an image and a z-values collection (multiple descriptors)
+    """
     def compare_single(self, image, z_collection, key, mask=None):
         return ComparisonItem(image, key, z_collection.descriptors[key], mask)
 

@@ -8,6 +8,11 @@ from src.shared import *
 
 
 class Enhancer(metaclass=abc.ABCMeta):
+    """
+        Abstract class for an enhancer
+        Implementations of this class are used in order to enhance images based on a certain descriptor
+        All activated enhancers are stored in a variable ENHANCERS at the bottom of this file
+    """
     def __init__(self):
         pass
 

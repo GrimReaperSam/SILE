@@ -1,5 +1,7 @@
 import numpy as np
 
+# Code reproduced from MATLAB imresize in order to accurately reproduce the results of Lindner
+# The resize used by the python libraries doesn't produce similar values as they do different kind of interpolations
 
 def reduce_along_dim(img, dim, weights, indices):
     """

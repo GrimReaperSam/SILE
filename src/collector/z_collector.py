@@ -11,6 +11,9 @@ from src.filesystem.flicker_reader import FlickerDB
 
 
 class ZCollector:
+    """
+    Class to collect the z-values of a given keyword
+    """
     def __init__(self, descriptor_provider, z_provider):
         self.flicker_db = FlickerDB()
         self.descriptor_calculator = DescriptorsCalculator(descriptor_provider)

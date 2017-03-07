@@ -4,6 +4,11 @@ from src.descriptors.descriptors import *
 
 
 class DescriptorsCalculator:
+    """
+    This class is used to calculate the descriptors of a set of images.
+    It operates in parallel and fills one description matrix where each row (1st dimension) corresponds
+    to an image.
+    """
     def __init__(self, descriptor_provider):
         self.descriptor_provider = descriptor_provider
 

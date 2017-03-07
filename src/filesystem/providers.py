@@ -6,6 +6,9 @@ from src.collector.z_collector import ZProvider
 from src.config_paths import z_value_from_keyword, descriptor_from_id
 from src.descriptors.descriptors_calculator import DescriptorProvider
 
+# Utilities for loading and saving files
+# MyZProvider: Save/Load z-values
+# MyDescriptorProvider: Save/Load descriptors
 
 # TODO try to find a better way!
 class MyZProvider(ZProvider):
