@@ -24,6 +24,9 @@ class ComparisonItem:
 
 
 class ImageComparator:
+    def compare_single(self, image, z_collection, key, mask=None):
+        return ComparisonItem(image, key, z_collection.descriptors[key], mask)
+
     def compare(self, image, z_collection, mask=None):
         delta_list = []
         for descriptor in z_collection.reject('lightness_layout', 'chroma_layout', 'hue_layout', 'details_hist',

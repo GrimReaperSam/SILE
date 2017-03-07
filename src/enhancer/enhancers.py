@@ -44,11 +44,11 @@ class Enhancer(metaclass=abc.ABCMeta):
     def _make_transfer(self, z_delta, strength, **kwargs):
         s_max = 5
         bin_centers, x2 = self.init_transfer_function(**kwargs)
-        f_derivative = interp1d(bin_centers, strength * z_delta, fill_value='extrapolate')
+        f_derivative = interp1d(bin_centers, z_delta, fill_value='extrapolate')
 
         slopes = f_derivative(x2)
         slopes[slopes >= 0] = 1 / (1 + strength * slopes[slopes >= 0])
-        slopes[slopes < 0] = 1 + np.abs(slopes[slopes < 0])
+        slopes[slopes < 0] = 1 + strength * np.abs(slopes[slopes < 0])
 
         slopes[slopes > s_max] = s_max
         slopes[slopes < 1 / s_max] = 1 / s_max
@@ -56,7 +56,6 @@ class Enhancer(metaclass=abc.ABCMeta):
         mmap = np.cumsum(slopes)
         mmap -= mmap.min()
         mmap = mmap / mmap.max()
-
         return x2, mmap
 
     def _finalize_weight_map(self, my_map, h, w):
@@ -226,13 +225,13 @@ class LABHistogramEnhancer(Enhancer):
         # A-channel
         a_channel = z_delta.sum(axis=(0, 2))
         x2, mmap = self._make_transfer(a_channel, strength, channel='AB')
-        f = interp1d(x2, mmap * 160 - 80, fill_value='extrapolate')
+        f = interp1d(x2, mmap * 100 - 50, fill_value='extrapolate')
         result[..., 1][mask] = f(lab[..., 1][mask] / 80)
 
         # B-channel
         b_channel = z_delta.sum(axis=(0, 1))
         x2, mmap = self._make_transfer(b_channel, strength, channel='AB')
-        f = interp1d(x2, mmap * 160 - 80, fill_value='extrapolate')
+        f = interp1d(x2, mmap * 100 - 50, fill_value='extrapolate')
         result[..., 2][mask] = f(lab[..., 2][mask] / 80)
 
         return lab_to_rgb(result)
@@ -245,7 +244,7 @@ class LABHistogramEnhancer(Enhancer):
         else:
             max_range = (self.nbins - 1) / (self.nbins * 2)
             bin_centers = np.linspace(-max_range, max_range, self.nbins)
-            x2 = np.linspace(-0.5, 0.5, 160)
+            x2 = np.linspace(-0.5, 0.5, 100)
         return bin_centers, x2
 
     def compute_weight_map(self, image, z_descriptor):
@@ -253,7 +252,7 @@ class LABHistogramEnhancer(Enhancer):
         h, w, d = lab.shape
         lab = lab.reshape(h * w, d)
         l_bins = np.linspace(0, 100, self.nbins + 1, dtype=np.float32)
-        ab_bins = np.linspace(-80, 80, self.nbins + 1, dtype=np.float32)
+        ab_bins = np.linspace(-50, 50, self.nbins + 1, dtype=np.float32)
 
         l_indices = np.minimum(np.digitize(lab[..., 0], l_bins) - 1, self.nbins - 1)
         a_indices = np.minimum(np.digitize(lab[..., 1], ab_bins) - 1, self.nbins - 1)
