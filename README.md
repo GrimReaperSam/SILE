@@ -1,6 +1,6 @@
 # **S**emantic **I**mage **L**ocal **E**nhancement
 
-This project generates local image enhancements based on given keywords.
+This project generates local image enhancements based on given keywords. It corresponds to the paper **Keyword-based Image Color Re-rendering with Semantic Segmentation** https://infoscience.epfl.ch/record/231739
 
 Example:
 
@@ -15,6 +15,9 @@ Using the keyword **Lily**
 This project uses Python 3.5 and all the libraries can be installed using conda
 
 `conda env create -f environment.yml`
+
+Additionally, you need to download and setup the MIR Flickr 1M database from http://press.liacs.nl/mirflickr/
+You can setup the directories according to `src/config_paths.py` or alter this script according to your needs
 
 # Code hierarchy
 
@@ -62,3 +65,17 @@ They assume you have the following folder hierarchy:
         * mask2_id.jpg
     - keyword2:
         * mask3_id.jpg
+        
+# Citation
+
+Please cite the below when you use our work
+
+```bash
+@inproceedings{lahoud2017keyword,
+  title={KEYWORD-BASED IMAGE COLOR RE-RENDERING WITH SEMANTIC SEGMENTATION},
+  author={Lahoud, Fayez and Ortiz Segovia, Maria S and Jin, Bin and S{\"u}sstrunk, Sabine},
+  booktitle={IEEE International Conference on Image Processing (ICIP)},
+  number={EPFL-CONF-231739},
+  year={2017}
+}
+```
