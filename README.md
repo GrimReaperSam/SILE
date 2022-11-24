@@ -1,4 +1,4 @@
-# **S**emantic **I**mage **L**ocal **E**nhancement
+## **S**emantic **I**mage **L**ocal **E**nhancement
 
 This project generates local image enhancements based on given keywords. This repository contains the source code necessary to reproduce the results presented in the paper [**Keyword-based Image Color Re-rendering with Semantic Segmentation**](https://infoscience.epfl.ch/record/231739) (ICIP 2017)
 
